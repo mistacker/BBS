@@ -3,6 +3,7 @@
 #使用memcached
 import memcache
 cache = memcache.Client(['127.0.0.1:11211'],debug=True)
+import string,random
 
 # 从缓存中获取数据的函数
 def get(key=None):
@@ -30,3 +31,21 @@ def add(key=None,value=None,timeout=5*60):
         result = cache.add(key,value,timeout)
         return result
     return False
+
+# 生成验证码
+def set_captcha(num,email,time=5*60):
+    if isinstance(num,int)==False:
+        return False
+    temp = string.letters+'0123456789'
+    captcha = random.sample(temp,num)
+    captcha = ''.join(captcha)
+    set(email,captcha,time)
+    return captcha
+
+# 判断验证码是否相等
+def check_captcha(key,web_captcha):
+    ser_captcha = get(key)
+    if ser_captcha.lower() == web_captcha.lower():
+        return True
+    else:
+        return False

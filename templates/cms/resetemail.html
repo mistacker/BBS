@@ -1,0 +1,87 @@
+{% extends 'cms/base_cms_index.html' %}
+{% block title %}
+修改邮箱界面
+{% endblock %}
+{% block head %}
+<style>
+    form{
+        width:300px;
+    }
+</style>
+<script>
+    $(function(){
+        $('#get_captcha').click(function(event){
+            event.preventDefault();
+            var newemail = $('input[name=newemail]').val();
+            if(!newemail){
+                xtalert.alertErrorToast('新邮箱不能为空!')
+            }else{
+                xtajax.post({
+                    'url':'/send_captcha/',
+                    'data':{
+                        'newemail':newemail
+                    },
+                    'success':function(data){
+                        if(data['code']==200){
+                            xtalert.alertSuccessToast(data['message']);
+                        }else{
+                            xtalert.alertInfo(data['message'])
+                        }
+                    },
+                    'fail':function(error){
+                        xtalert.alertNetworkError()
+                    }
+                })
+            }
+        });
+        $('#btn').click(function(event){
+            event.preventDefault();
+            var newemail = $('input[name=newemail]');
+            var captcha = $('input[name=captcha]');
+            if(!captcha.val()){
+                xtalert.alertInfoToast('验证码不能为空!')
+            }else{
+                xtajax.post({
+                    'url':'/resetemail/',
+                    'data':{
+                        'newemail':newemail.val(),
+                        'captcha':captcha.val()
+                    },
+                    'success':function(data){
+                        if(data['code']==200){
+                            newemail.val('');
+                            captcha.val('');
+                            xtalert.alertSuccessToast(data['message']);
+                        }else{
+                            xtalert.alertError(data['message']);
+                        }
+                    },
+                    'fail':function(error){
+                        xtalert.alertInfo(error)
+                    }
+                })
+            }
+        })
+    })
+</script>
+{% endblock %}
+{% block content %}
+<h1>修改邮箱</h1>
+<form method="post" class="form">
+<div class="form-group">
+    <div class="input-group">
+        <input type="email" placeholder="新邮箱" class="form-control" name="newemail">
+        <span class="input-group-addon" style="cursor: pointer" id="get_captcha">获取验证码</span>
+    </div>
+</div>
+<div class="form-group">
+    <div class="input-group">
+        <input style="width: 300px;" type="text" placeholder="输入邮箱验证码,不区分大小写" class="form-control" name="captcha">
+    </div>
+</div>
+<div class="form-group">
+    <button id="btn" class="btn btn-primary">立即修改</button>
+</div>
+<p style="color: red;text-align: center"></p>
+</form>
+{% endblock %}

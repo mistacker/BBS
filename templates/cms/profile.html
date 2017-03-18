@@ -1,0 +1,29 @@
+{% extends 'cms/base_cms_index.html' %}
+{% block head %}
+<link rel="stylesheet" href="{{ urlFor('css/profile.css') }}">
+{% endblock %}
+{% block content %}
+<h1>个人信息</h1>
+<table class="mytable table table-bordered ">
+    <tr>
+        <td>用户名:</td>
+        <td>{{ user.username }}</td>
+    </tr>
+    <tr>
+        <td>邮箱:</td>
+        <td>{{ user.email }}</td>
+    </tr>
+    <tr>
+        <td>角色:</td>
+        <td>暂未实现</td>
+    </tr>
+    <tr>
+        <td>权限:</td>
+        <td>{{ user.cms_roles[0].name }}</td>
+    </tr>
+    <tr>
+        <td>加入时间:</td>
+        <td>{{ user.join_time }}</td>
+    </tr>
+</table>
+{% endblock %}

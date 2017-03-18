@@ -1,0 +1,76 @@
+{% extends 'cms/base_cms_index.html' %}
+{% block title %}
+修改密码界面
+{% endblock %}
+{% block head %}
+<style>
+form{
+    width: 380px;
+}
+</style>
+<script>
+    $(function(){
+        $('#btn').click(function(event){
+            event.preventDefault();
+            var oldpwd = $('input[name="oldpwd"]');
+            var newpwd = $('input[name="newpwd"]');
+            var re_newpwd = $('input[name="re_newpwd"]');
+            var p = $('#p');
+            if(newpwd.val()!=re_newpwd.val()){
+                p.text('新密码和确认密码必须相等')
+            }else{
+                p.text('');
+                xtajax.post({
+                    'url':'/resetpwd/',
+                    'data':{
+                        'oldpwd':oldpwd.val(),
+                        'newpwd':newpwd.val(),
+                        're_newpwd':re_newpwd.val()
+                    },
+                    'success':function(data){
+                        if(data['code'] == 200){
+                            oldpwd.val('');
+                            newpwd.val('');
+                            re_newpwd.val('');
+                            xtalert.alertSuccessToast('恭喜，修改成功!')
+                        }else{
+                            xtalert.alertError(data['message'])
+                        }
+                    },
+                    'fail':function(error){
+                        console.log(error)
+                        xtalert.alertNetworkError()
+                    }
+                })
+            }
+        })
+    })
+</script>
+{% endblock %}
+{% block content %}
+<h1>修改密码</h1>
+<form method="post">
+    <div class="form-group">
+        <div class="input-group">
+            <span class="input-group-addon">原密码:</span>
+            <input type="password" name="oldpwd" placeholder="请输入原始密码" class="form-control">
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="input-group">
+            <span class="input-group-addon">新密码:</span>
+            <input type="password" name="newpwd" placeholder="请输入新密码" class="form-control">
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="input-group">
+            <span class="input-group-addon">确认密码:</span>
+            <input type="password" name="re_newpwd" placeholder="请输入确认密码" class="form-control">
+        </div>
+    </div>
+    <div class="form-group">
+        <button class="btn btn-primary" id="btn">立即保存</button>
+    </div>
+    <p id="p" style="color: red;text-align: center">{{ message }}</p>
+</form>
+{% endblock %}
