@@ -15,11 +15,13 @@
     </tr>
     <tr>
         <td>角色:</td>
-        <td>暂未实现</td>
+        <td>{% for role in user.cms_roles %}{{ role.name }}{% if not loop.last %}、{% endif %}{% endfor %}
+        </td>
     </tr>
     <tr>
         <td>权限:</td>
-        <td>{{ user.cms_roles[0].name }}</td>
+        <td>{% for k,info in user.get_all_power_info.iteritems() %}{{ info[1] }}{% if not loop.last %}、{% endif %}{% endfor %}
+        </td>
     </tr>
     <tr>
         <td>加入时间:</td>

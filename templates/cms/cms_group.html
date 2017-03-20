@@ -1,0 +1,43 @@
+{% extends 'cms/base_cms_index.html' %}
+{% block title %}
+cms组管理
+{% endblock %}
+{% block head %}
+<style>
+    .top_box{
+        background-color:darkseagreen;
+        overflow: hidden;
+        border-radius: 3px;
+    }
+    .add_admin{
+        float: right;
+        margin: 5px 10px;
+    }
+</style>
+<script>
+</script>
+{% endblock %}
+{% block content %}
+<h1>CMS组管理界面：<font style="font-size: 25px;color:gold">默认共8组，如需再添加，请联系管理员。</font></h1>
+<div class='top_box'>
+    <a href='{{ url_for('cms.add_group') }}' class="add_admin btn btn-warning">添加权限组</a>
+</div>
+<table class="table table-bordered">
+    <thead>
+        <th>组名称</th>
+        <th>创建时间</th>
+        <th>功能</th>
+        <th>权限值</th>
+        <th>操作</th>
+    </thead>
+    {% for group in all_groups %}
+    <tr>
+        <td>{{ group.name }}</td>
+        <td>{{ group.create_time }}</td>
+        <td>{{ group.desc }}</td>
+        <td>{{ group.power }}</td>
+        <td><span class='btn btn-xs btn-primary'>编辑</span></td>
+    </tr>
+    {% endfor %}
+</table>
+{% endblock %}

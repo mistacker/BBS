@@ -1,0 +1,43 @@
+{% extends 'cms/base_cms_index.html' %}
+{% block title %}
+CMS用户管理
+{% endblock %}
+{% block head %}
+<style>
+    .top_box{
+        background-color:darkseagreen;
+        overflow: hidden;
+        border-radius: 3px;
+    }
+    .add_admin{
+        float: right;
+        margin: 5px 10px;
+    }
+</style>
+{% endblock %}
+{% block content %}
+<h1>CMS用户管理界面:</h1>
+<div class='top_box'>
+    <a href='{{ url_for('cms.add_manager') }}' class="add_admin btn btn-warning">添加管理员</a>
+</div>
+<table class="table table-bordered">
+    <thead>
+        <th>用户名</th>
+        <th>加入时间</th>
+        <th>分组</th>
+        <th>状态</th>
+        <th>操作</th>
+    </thead>
+    {% for cms_user in cms_users %}
+    <tr>
+        <td>{{ cms_user.username }}</td>
+        <td>{{ cms_user.join_time }}</td>
+        <td>
+            {% for role in cms_user.cms_roles %}{{ role.name }}{% if not loop.last %}、{% endif %}{% endfor %}
+        </td>
+        <td><span class="label label-success">可用</span></td>
+        <td><span class='btn btn-xs btn-primary'>编辑</span></td>
+    </tr>
+    {% endfor %}
+</table>
+{% endblock %}

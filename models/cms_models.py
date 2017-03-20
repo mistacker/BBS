@@ -11,6 +11,10 @@ Base = db.Model
 class User_power(object):
     common = 1
     admin = 255
+    desc_temp = {
+        common:(u'普通管理员',u'拥有管理前台用户和帖子等权限'),
+        admin:(u'超级管理员',u'拥有所有权限，可进行任何操作'),
+    }
 
 # 中间表
 user_role_table = db.Table('cms_user_role',Base.metadata,
@@ -54,6 +58,44 @@ class CMSUser(Base):
     def check_pwd(self,rawpwd):
         rs = check_password_hash(self.password,rawpwd)
         return rs
+
+    # 获取用户的所有权限
+    def get_all_powers(self):
+        if not self.cms_roles:
+            return False
+        all_powers = 0
+        for role in self.cms_roles:
+            all_powers = all_powers | role.power
+        return all_powers
+
+    # 判断用户是否有某个权限
+    def has_power(self,is_power):
+        all_powers = self.get_all_powers()
+        # return all_power & is_power == is_power
+        if (all_powers & is_power) == is_power:
+            return True
+        else:
+            return False
+
+    # 判断用户是否是super_admin
+    @property
+    def is_super_admin(self):
+        rs = self.has_power(User_power.admin)
+        return rs
+
+    # 获取用户的所有权限和描述信息
+    @property
+    def get_all_power_info(self):
+        all_powers = self.get_all_powers()
+        power_dicts = {}
+        if all_powers & User_power.admin == User_power.admin:
+            power_dicts[User_power.admin] = User_power.desc_temp[User_power.admin]
+            return power_dicts
+        for power,info in User_power.desc_temp.iteritems():
+            if all_powers & power == power:
+                power_dicts[power] = info
+        return power_dicts
+
 
     def __repr__(self):
         return '<User(id:%s,name:%s,pwd:%s,email:%s)>'%(self.id,self.username,self.password,self.email)

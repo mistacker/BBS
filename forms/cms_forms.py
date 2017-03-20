@@ -30,3 +30,14 @@ class Set_email_form(FormError):
 # 检查邮箱
 class check_email_form(FormError):
     newemail = StringField(validators=[Email(message=u'邮箱地址不符合规则!')])
+
+# 添加cms用户
+class Add_manager_form(FormError):
+    username = StringField(validators=[Length(min=6,message=u'用户名不得小于6位!')])
+    password = StringField(validators=[Length(min=6,message=u'密码不得小于6为!')])
+    email = StringField(validators=[Email(message=u'邮箱格式不正确!')])
+
+# 添加权限组
+class Add_group_form(FormError):
+    name = StringField(validators=[InputRequired(message=u'组名不能为空!')])
+    desc = StringField(validators=[InputRequired(message=u'功能描述不能为空!')])

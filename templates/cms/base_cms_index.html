@@ -16,7 +16,7 @@
     <script src="{{ urlFor('js/cms_base.js') }}"></script>
     {% block head %}{% endblock %}
 </head>
-<body  style="background-color: #EEEEEE">
+<body  style="background-color: #EFE">
      <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
       <div class="container-fluid">
         <div class="navbar-header">
@@ -61,8 +61,10 @@
                 <li class="nav-group user-manage"><a href="#">用户管理</a></li>
                 <li class="role-manage"><a href="#">组管理</a></li>
 
-                <li class="nav-group cmsuser-manage"><a href="#">CMS用户管理</a></li>
-                <li class="cmsrole-manage"><a href="#">CMS组管理</a></li>
+                {% if user.is_super_admin %}
+                    <li class="nav-group cmsuser-manage"><a href="{{ url_for('cms.cms_user_manager') }}">CMS用户管理</a></li>
+                    <li class="cmsrole-manage"><a href="{{ url_for('cms.cms_group') }}">CMS组管理</a></li>
+                {% endif %}
             </ul>
           </div>
           <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">

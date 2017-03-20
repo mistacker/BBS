@@ -1,0 +1,67 @@
+{% extends 'cms/base_cms_index.html' %}
+{% block title %}
+添加管理组界面
+{% endblock %}
+{% block head %}
+<style>
+.zuo{
+    text-align: right;
+}
+.table>tbody>tr>td, .table>tbody>tr>th, .table>tfoot>tr>td, .table>tfoot>tr>th, .table>thead>tr>td, .table>thead>tr>th{
+    vertical-align: middle;
+    border-top:0px;
+}
+.table{
+    width:35%;
+}
+</style>
+<script>
+$(function(){
+    $('.mybtn').click(function(event){
+        event.preventDefault();
+        var name = $('input[name=name]');
+        var desc = $('input[name=desc]');
+        if(!name.val()|!desc.val()){
+            xtalert.alertErrorToast('对不起 名称或描述不能为空!');
+        }else{
+            xtajax.post({
+                'url':'/add_group/',
+                'data':{
+                    'name':name.val(),
+                    'desc':desc.val()
+                },
+                'success':function(data){
+                    if(data['code']==200) {
+                        name.val('');
+                        desc.val('');
+                        xtalert.alertSuccessToast(data['message']);
+                    }else{
+                        xtalert.alertError(data['message']);
+                    }
+                },
+                'fail':function(error){
+                    xtalert.alertNetworkError();
+                }
+            })
+        }
+    });
+})
+</script>
+{% endblock %}
+{% block content %}
+<h1>添加管理组：</h1>
+<table class="table">
+    <tr>
+        <td class="zuo"><b>组名：</b></td>
+        <td><input class="form-control" type="text" name="name" placeholder="组名"></td>
+    </tr>
+    <tr>
+        <td class="zuo"><b>功能：</b></td>
+        <td><input type="text" class="form-control" name="desc" placeholder="功能"></td>
+    </tr>
+    <tr>
+        <td></td>
+        <td><button class="mybtn btn btn-primary">立即添加</button></td>
+    </tr>
+</table>
+{% endblock %}

@@ -3,8 +3,8 @@
 from flask import Blueprint
 import flask
 from flask.views import MethodView
-from forms.cms_forms import CMS_user_login_form,Set_pwd_form,check_email_form,Set_email_form
-from models.cms_models import db,CMSUser
+from forms.cms_forms import CMS_user_login_form,Set_pwd_form,check_email_form,Set_email_form,Add_manager_form,Add_group_form
+from models.cms_models import db,CMSUser,CMSRole
 from constants import USER_SESSION_ID
 from my_decorator import login_required
 from utils import xt_json
@@ -85,7 +85,7 @@ def resetpwd():
                 db.session.commit()
                 return xt_json.json_result(message='success')
             else:
-                return xt_json.json_params_error(message=u'原密码不正确!')
+                return xt_json.json_params_error(message=u'原始密码不正确!')
         else:
             return xt_json.json_params_error(message=u'数据填写有误!')
 
@@ -121,7 +121,7 @@ def send_email_captcha():
             return xt_json.json_params_error('新邮箱和原始邮箱一致!')
         if xt_cache.get(newemail):
             return xt_json.json_params_error('已经发送验证码，3分钟内不能重复提交!')
-        user = CMSUser.query.filter_by(email=email).first()
+        user = CMSUser.query.filter_by(email=newemail).first()
         if user:
             return xt_json.json_params_error('对不起该邮箱已存在!')
         captcha = xt_cache.set_captcha(6,newemail,3*60)
@@ -132,6 +132,81 @@ def send_email_captcha():
             return xt_json.json_server_error('服务器错误!')
     else:
         return xt_json.json_params_error(form.get_error())
+
+# CMS用户管理界面
+@bp.route('/cms_user_manager/')
+@login_required
+def cms_user_manager():
+    cms_users = CMSUser.query.all()
+    return flask.render_template('cms/cms_user_manager.html',cms_users=cms_users)
+
+# 添加管理员界面
+@bp.route('/add_manager/',methods=['POST','GET'])
+@login_required
+def add_manager():
+    if flask.request.method == 'GET':
+        cms_roles = CMSRole.query.all()
+        return flask.render_template('cms/add_manager.html',cms_roles=cms_roles)
+    else:
+        form = Add_manager_form(flask.request.form)
+        if form.validate():
+            username = form.username.data
+            password = form.password.data
+            email = form.email.data
+            web_check = flask.request.form.getlist('web_check[]')
+            cms_user = CMSUser.query.filter_by(username=username).first()
+            if cms_user:
+                return xt_json.json_params_error('对不起 该用户名已存在!')
+            cms_user = CMSUser.query.filter_by(email=email).first()
+            if cms_user:
+                return xt_json.json_params_error('对不起 该邮箱已存在!')
+            cms_user = CMSUser(username=username,password=password,email=email)
+            if web_check:
+                cms_roles = []
+                for check in web_check:
+                    cms_role = CMSRole.query.get(check)
+                    cms_roles.append(cms_role)
+                cms_user.cms_roles = cms_roles
+                db.session.add(cms_user)
+                db.session.commit()
+            else:
+                return xt_json.json_params_error('对不起 必须指定所属分组!')
+            return xt_json.json_result_ok('恭喜 添加CMS用户成功!')
+        else:
+            return xt_json.json_params_error(form.get_error())
+
+# cms组管理界面
+@bp.route('/cms_group/')
+@login_required
+def cms_group():
+    all_groups = CMSRole.query.all()
+    return flask.render_template('cms/cms_group.html',all_groups=all_groups)
+
+# cms添加管理组界面
+@bp.route('/add_group/',methods=['GET','POST'])
+@login_required
+def add_group():
+    if flask.request.method == 'GET':
+        return flask.render_template('cms/add_group.html')
+    else:
+        form = Add_group_form(flask.request.form)
+        if form.validate():
+            name = form.name.data
+            desc = form.desc.data
+            all_count = CMSRole.query.count()
+            power = pow(2,all_count-1)
+            if power>255:
+                return xt_json.json_server_error('对不起 内部错误!')
+            cms_role = CMSRole.query.filter_by(name=name).first()
+            if cms_role:
+                return xt_json.json_params_error('对不起，该组名已存在!')
+            new_cms_role = CMSRole(name=name,desc=desc,power=power)
+            db.session.add(new_cms_role)
+            db.session.commit()
+            return xt_json.json_result_ok('恭喜，添加该组管理成功!')
+        else:
+            return xt_json.json_params_error(form.get_error())
+
 
 @bp.context_processor
 def cms_context_processor():

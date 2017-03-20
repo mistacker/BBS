@@ -5,7 +5,6 @@ from exts import db,mail
 from views.front_views import post_views,account_views
 from views.cms_views import cms_exts
 from flask_wtf import CSRFProtect
-from flask_mail import Message
 
 
 app = Flask(__name__)

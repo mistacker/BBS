@@ -62,5 +62,29 @@ def add_group_user(email,role_name):
     db.session.commit()
     print 'add user to group seccess'
 
+# 检查用户是否拥有某个权限
+@manager.option('-e',dest='email')
+@manager.option('-n',dest='n')
+def check_power(email,n):
+    cms_user = cms_models.CMSUser.query.filter_by(email=email).first()
+    if not cms_user:
+        print 'sorry not find this cms_user'
+        return
+    if cms_user.has_power(int(n)):
+        print 'this cms_user has this power'
+    else:
+        print 'this cms_user not has this power'
+    return
+
+# 检查用户所有的权限和信息
+@manager.option('-e',dest='email')
+def get_all_power_infos(email):
+    cms_user = cms_models.CMSUser.query.filter_by(email=email).first()
+    if not cms_user:
+        print 'sorry not find this cms_user'
+        return
+    print cms_user.get_all_power_info()
+    return
+
 if __name__ == '__main__':
     manager.run()
