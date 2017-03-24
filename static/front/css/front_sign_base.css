@@ -1,0 +1,34 @@
+
+body{
+    background: #f3f3f3;
+}
+.outer-box{
+    background: #fff;
+    width: 854px;
+    margin: 0 auto;
+    overflow: hidden;
+    margin-top: 150px;
+    padding-bottom: 20px;
+}
+.logo-box img{
+    width: 60px;
+    height:60px;
+    display: block;
+    margin: 0 auto;
+}
+.sign-group{
+    width: 300px;
+    margin: 0 auto;
+    margin-top: 50px;
+}
+.remember-me{
+    float: left;
+    margin-top: 0;
+}
+.forgetpwd{
+    float: right;
+}
+
+#send-captcha-btn{
+    cursor: pointer;
+}

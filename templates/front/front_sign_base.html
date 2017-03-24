@@ -1,0 +1,26 @@
+{% from 'macro/mymacro.html' import urlFor as static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}{% endblock %}</title>
+    {% include 'common/common_head.html' %}
+    <link rel="stylesheet" href="{{ static('front/css/front_sign_base.css') }}">
+    {% block head %}{% endblock %}
+</head>
+<body>
+    <div class="outer-box">
+        <div class="logo-box">
+            <a href="/">
+                <img src="{{ static('images/logo.jpg') }}" alt="">
+            </a>
+        </div>
+        <h2 style="text-align: center;">{% block page_title %}{% endblock %}</h2>
+        <div class="sign-group">
+            <form action="" method="post">
+                {% block sign_group %}{% endblock %}
+            </form>
+        </div>
+    </div>
+</body>
+</html>

@@ -6,7 +6,7 @@ from flask.views import MethodView
 from forms.cms_forms import CMS_user_login_form,Set_pwd_form,check_email_form,Set_email_form,Add_manager_form,Add_group_form
 from models.cms_models import db,CMSUser,CMSRole
 from constants import USER_SESSION_ID
-from my_decorator import login_required
+from my_decorator import login_required,prove_power_super_admin
 from utils import xt_json
 from utils.xt_mail import send_mail
 from utils import xt_cache
@@ -29,6 +29,8 @@ class Login(MethodView):
             rember = form.rember.data
             # print email
             user = CMSUser.query.filter_by(email=email).first()
+            if not user.is_live:
+                return self.get(message=u'sorry 该用户已被禁用，请联系管理员!')
             if user and user.check_pwd(password):
                 flask.session[USER_SESSION_ID] = email
                 if rember:
@@ -49,11 +51,6 @@ bp.add_url_rule('/login/',view_func=Login.as_view('login'))
 @login_required
 def index():
     return flask.render_template('cms/cms_index.html')
-
-
-@bp.route('/account/')
-def account():
-    return 'this is account page'
 
 # CMS用户推出登录
 @bp.route('/logout/')
@@ -83,11 +80,11 @@ def resetpwd():
             if flask.g.cms_user.check_pwd(oldpwd):
                 flask.g.cms_user.password = newpwd
                 db.session.commit()
-                return xt_json.json_result(message='success')
+                return xt_json.json_result_ok(message='success')
             else:
                 return xt_json.json_params_error(message=u'原始密码不正确!')
         else:
-            return xt_json.json_params_error(message=u'数据填写有误!')
+            return xt_json.json_params_error(form.get_error())
 
 # 修改邮箱
 @bp.route('/resetemail/',methods=['GET','POST'])
@@ -108,7 +105,7 @@ def resetemail():
             else:
                 return xt_json.json_params_error('对不起，验证码不正确!')
         else:
-            return xt_json.json_params_error('对不起，格式有误!')
+            return xt_json.json_params_error(form.get_error())
 
 # 发送邮箱验证码
 @bp.route('/send_captcha/',methods=['POST'])
@@ -136,13 +133,20 @@ def send_email_captcha():
 # CMS用户管理界面
 @bp.route('/cms_user_manager/')
 @login_required
+@prove_power_super_admin
 def cms_user_manager():
     cms_users = CMSUser.query.all()
-    return flask.render_template('cms/cms_user_manager.html',cms_users=cms_users)
+    cms_user = flask.g.cms_user
+    content = {
+        'cms_users':cms_users,
+        'cmsUser':cms_user
+    }
+    return flask.render_template('cms/cms_user_manager.html',**content)
 
 # 添加管理员界面
 @bp.route('/add_manager/',methods=['POST','GET'])
 @login_required
+@prove_power_super_admin
 def add_manager():
     if flask.request.method == 'GET':
         cms_roles = CMSRole.query.all()
@@ -177,6 +181,7 @@ def add_manager():
 
 # cms组管理界面
 @bp.route('/cms_group/')
+@prove_power_super_admin
 @login_required
 def cms_group():
     all_groups = CMSRole.query.all()
@@ -185,6 +190,7 @@ def cms_group():
 # cms添加管理组界面
 @bp.route('/add_group/',methods=['GET','POST'])
 @login_required
+@prove_power_super_admin
 def add_group():
     if flask.request.method == 'GET':
         return flask.render_template('cms/add_group.html')
@@ -203,10 +209,58 @@ def add_group():
             new_cms_role = CMSRole(name=name,desc=desc,power=power)
             db.session.add(new_cms_role)
             db.session.commit()
-            return xt_json.json_result_ok('恭喜，添加该组管理成功!')
+            return xt_json.json_result_ok('恭喜，添加该管理组成功!')
         else:
             return xt_json.json_params_error(form.get_error())
 
+# 编辑cms用户界面
+@bp.route('/edit_cms_user/<id>')
+@login_required
+@prove_power_super_admin
+def edit_cms_user(id):
+    cms_user = CMSUser.query.get(id)
+    cms_roles = CMSRole.query.all()
+    roles = []
+    for cms_role in cms_user.cms_roles:
+        roles.append(cms_role.id)
+    if cms_user:
+        content = {
+            'cms_user':cms_user,
+            'cms_roles':cms_roles,
+            'roles':roles
+        }
+        return flask.render_template('cms/edit_cms_user.html',**content)
+    else:
+        return flask.abort(404)
+
+# 提交编辑cms用户界面
+@bp.route('/add_edit_cms_user/',methods=['GET','POST'])
+@login_required
+@prove_power_super_admin
+def add_edit_cms_user():
+    if flask.request.is_xhr and flask.request.method == 'GET':
+        id = flask.request.args.get('id')
+        cms_user = CMSUser.query.get(id)
+        if not cms_user.is_live:
+            cms_user.is_live = True
+            db.session.commit()
+            return xt_json.json_result_ok('恭喜，解禁成功!')
+        else:
+            cms_user.is_live = False
+            db.session.commit()
+            return xt_json.json_result_ok('恭喜，禁用成功!')
+    else:
+        web_roles = flask.request.form.getlist('web_roles[]')
+        id = flask.request.form.get('id')
+        if not web_roles:
+            return xt_json.json_params_error('对不起，必须指定分组!')
+        cms_user = CMSUser.query.get(id)
+        roles = []
+        for web_role in web_roles:
+            roles.append(CMSRole.query.get(web_role))
+        cms_user.cms_roles = roles
+        db.session.commit()
+        return xt_json.json_result_ok('恭喜 修改成功!')
 
 @bp.context_processor
 def cms_context_processor():
@@ -224,3 +278,4 @@ def cms_befor_request():
     if email:
         user = CMSUser.query.filter_by(email=email).first()
         flask.g.cms_user = user
+

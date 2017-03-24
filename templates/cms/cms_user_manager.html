@@ -35,8 +35,14 @@ CMS用户管理
         <td>
             {% for role in cms_user.cms_roles %}{{ role.name }}{% if not loop.last %}、{% endif %}{% endfor %}
         </td>
-        <td><span class="label label-success">可用</span></td>
-        <td><span class='btn btn-xs btn-primary'>编辑</span></td>
+        <td>
+            {% if cms_user.is_live %}
+                <span class="label label-success">可用</span>
+            {% else %}
+                <span class="label label-danger">禁用</span>
+            {% endif %}
+        </td>
+        <td>{% if cms_user == cmsUser %}<a class='btn btn-xs btn-primary'>不可编辑</a>{% else %}<a href="{{ url_for('cms.edit_cms_user',id=cms_user.id) }}" class='btn btn-xs btn-primary'>编辑</a>{% endif %}</td>
     </tr>
     {% endfor %}
 </table>

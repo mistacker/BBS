@@ -2,3 +2,4 @@
 
 
 USER_SESSION_ID = 'feifeiILU'
+CAPTCHA = 'yongyupanduandeyanzhengma'

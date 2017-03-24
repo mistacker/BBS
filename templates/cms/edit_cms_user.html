@@ -1,0 +1,114 @@
+{% extends 'cms/base_cms_index.html' %}
+{% block title %}
+cms用户编辑界面
+{% endblock %}
+{% block head %}
+<style>
+.zuo{
+    text-align: right;
+}
+.table>tbody>tr>td, .table>tbody>tr>th, .table>tfoot>tr>td, .table>tfoot>tr>th, .table>thead>tr>td, .table>thead>tr>th{
+    vertical-align: middle;
+    border-top:0px;
+}
+.table{
+    width:35%;
+}
+input[type=checkbox], input[type=radio] {
+    margin: 0 0 0;
+    vertical-align: middle;
+    line-height: normal;
+}
+.span{
+    display: block;
+}
+</style>
+<script>
+    $(function(){
+        $('.mybtn').click(function(event){
+            event.preventDefault();
+            var id = $(this).attr('info');
+            xtajax.get({
+                'url':'/add_edit_cms_user/',
+                'data':{
+                    'id':id
+                },
+                'success':function(data){
+                    if(data['code']==200){
+                        xtalert.alertSuccessToast(data['message']);
+                        setTimeout(function(){
+                            window.location.reload();
+                        },500);
+                    }else{
+                        xtalert.alertError(data['message']);
+                    }
+                },
+                'fail':function(error){
+                    xtalert.alertError(error);
+                }
+            })
+        });
+        $('.mybtn_add').click(function(event){
+            event.preventDefault();
+            var roles = $(':checkbox:checked');
+            var id = $(this).attr('info');
+            web_roles = [];
+            roles.each(function(index,element){
+                web_roles.push($(this).val());
+            });
+            console.log(!web_roles.length);
+            if(!web_roles.length){
+                xtalert.alertError('必须指定分组!');
+            }else{
+                xtajax.post({
+                    'url':'/add_edit_cms_user/',
+                    'data':{
+                        'id':id,
+                        'web_roles':web_roles
+                    },
+                    'success':function(data){
+                        if(data['code']==200){
+                            xtalert.alertSuccessToast(data['message']);
+                        }else{
+                            xtalert.alertError(data['message']);
+                        }
+                    },
+                    'fail':function(error){
+                        xtalert.alertNetworkError();
+                    }
+                })
+            }
+        });
+    })
+</script>
+{% endblock %}
+{% block content %}
+<h1>编辑CMS用户：</h1>
+<table class="table">
+    <tr>
+        <td class="zuo"><b>用户名：</b></td>
+        <td><input class="form-control" type="text" value="{{ cms_user.username }}" disabled></td>
+    </tr>
+    <tr>
+        <td class="zuo"><b>邮箱：</b></td>
+        <td><input type="email" class="form-control" value="{{ cms_user.email }}" disabled></td>
+    </tr>
+        <td class="zuo"><b>所属组：</b></td>
+        <td>
+            {% for cms_role in cms_roles %}
+                {% if cms_role.id in roles %}<span class="span"><input type="checkbox" name="role" value="{{ cms_role.id }}" checked>{{ cms_role.name }}</span>{% else %}<span class="span"><input type="checkbox" name="role" value="{{ cms_role.id }}">{{ cms_role.name }}</span>{% endif %}
+            {% endfor %}
+        </td>
+    </tr>
+    <tr>
+        <td><button class="mybtn_add btn btn-primary" info="{{ cms_user.id }}">修改提交</button></td>
+        <td>
+            {% if cms_user.is_live %}
+                <button class="mybtn btn btn-danger" info="{{ cms_user.id }}">禁用该用户</button>
+            {% else %}
+                <button class="mybtn btn btn-success" info="{{ cms_user.id }}">解禁该用户</button>
+            {% endif %}
+        </td>
+    </tr>
+</table>
+{% endblock %}

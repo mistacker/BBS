@@ -17,6 +17,15 @@ CSRFProtect(app)
 app.register_blueprint(account_views.bp)
 app.register_blueprint(cms_exts.bp)
 
+# 定义404错误
+@app.errorhandler(404)
+def cms_errorHanderler(error):
+    return flask.render_template('cms/404.html'),404
+
+# 定义401错误
+@app.errorhandler(401)
+def cms_errorHanderler(error):
+    return flask.render_template('cms/401.html'),401
 
 if __name__ == '__main__':
     app.run(host='127.0.0.1', port=80, debug=True)

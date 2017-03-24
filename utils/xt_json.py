@@ -10,7 +10,7 @@ unauth = 401
 methoderror = 405
 servererror = 500
 
-# 正常访问
+
 def json_result(code,message='',data={},kwargs={}):
 
     json = {'code':code,'message':message,'data':data}
@@ -19,6 +19,7 @@ def json_result(code,message='',data={},kwargs={}):
             json[k] = v
     return jsonify(json)
 
+# 正常访问
 def json_result_ok(message='',data={},kwargs={}):
     return json_result(ok,message,data,kwargs)
 

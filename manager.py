@@ -3,7 +3,7 @@
 from exts import db
 from flask_migrate import Migrate,MigrateCommand
 from flask_script import Manager
-from models import cms_models,font_models,public_models
+from models import cms_models,front_models,public_models
 from demo19_1 import app
 
 manager = Manager(app)
@@ -18,7 +18,7 @@ def create_cms_user(username,password,email):
     cms_user = cms_models.CMSUser(username=username,password=password,email=email)
     db.session.add(cms_user)
     db.session.commit()
-    return 'seccess'
+    return 'success'
 
 # 添加权限分组
 @manager.option('-n',dest='name')
@@ -28,7 +28,7 @@ def add_power_group(name,desc,power):
     cms_role = cms_models.CMSRole(name=name.decode('gbk').encode('utf8'),desc=desc.decode('gbk').encode('utf8'),power=power)
     db.session.add(cms_role)
     db.session.commit()
-    print 'seccess add power_group'
+    print 'success add power_group'
 
 
 # 分组内添加cms用户
@@ -44,7 +44,7 @@ def add_cms_user(name,pwd,email,role):
     cms_user = cms_models.CMSUser(username=name,password=pwd,email=email)
     cms_role.cms_users.append(cms_user)
     db.session.commit()
-    print 'add this cms_user to group access!'
+    print 'add this cms_user to group success!'
 
 # 把当前已创建好的cms用户添加到分组中
 @manager.option('-e',dest='email')
@@ -52,15 +52,15 @@ def add_cms_user(name,pwd,email,role):
 def add_group_user(email,role_name):
     cms_user = cms_models.CMSUser.query.filter_by(email=email).first()
     if not cms_user:
-        print 'cms_user is not font'
+        print 'cms_user is not find'
         return
     cms_role = cms_models.CMSRole.query.filter_by(name=role_name.decode('gbk').encode('utf8')).first()
     if not cms_role:
-        print 'cms_role is not font'
+        print 'cms_role is not find'
         return
     cms_role.cms_users.append(cms_user)
     db.session.commit()
-    print 'add user to group seccess'
+    print 'add user to group success'
 
 # 检查用户是否拥有某个权限
 @manager.option('-e',dest='email')

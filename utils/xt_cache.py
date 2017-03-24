@@ -42,6 +42,14 @@ def set_captcha(num,email,time=5*60):
     set(email,captcha,time)
     return captcha
 
+# 生成数字验证码
+def create_num_captcha(num,key,timeout=60):
+    temp = '0123456789'
+    rs = random.sample(temp,num)
+    rs = ''.join(rs)
+    set(key=key,value=rs,timeout=timeout)
+    return rs
+
 # 判断验证码是否相等
 def check_captcha(key,web_captcha):
     ser_captcha = get(key)

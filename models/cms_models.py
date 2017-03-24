@@ -40,6 +40,7 @@ class CMSUser(Base):
     _password = db.Column(db.String(100),nullable=False)
     email = db.Column(db.String(100),nullable=False,unique=True)
     join_time = db.Column(db.DateTime,default=datetime.now())
+    is_live = db.Column(db.Boolean,default=True)
     cms_roles = db.relationship('CMSRole',secondary=user_role_table)
 
     def __init__(self,username,password,email):
@@ -91,9 +92,14 @@ class CMSUser(Base):
         if all_powers & User_power.admin == User_power.admin:
             power_dicts[User_power.admin] = User_power.desc_temp[User_power.admin]
             return power_dicts
-        for power,info in User_power.desc_temp.iteritems():
-            if all_powers & power == power:
-                power_dicts[power] = info
+        # for power,info in User_power.desc_temp.iteritems():
+        #     if all_powers & power == power:
+        #         power_dicts[power] = info
+        for info in self.cms_roles:
+            temp = []
+            temp.append(info.name)
+            temp.append(info.desc)
+            power_dicts[info.power] = temp
         return power_dicts
 
 
