@@ -39,19 +39,19 @@ class RegisteUser(views.MethodView):
             if front_user:
                 temp = {
                     'result' : u'对不起 该用户名已存在!',
-                    'content' : u'<a href={{url_for("account.regist")}}>重新注册</a>'
+                    'content' : u'<a href={{url_for("front_accent.regist")}}>重新注册</a>'
                 }
                 return flask.render_template('front/result.html',**temp)
             if not xt_cache.get(telephone) or xt_cache.get(telephone) != tel_captcha:
                 temp = {
                     'result' : u'对不起 手机验证码不正确!',
-                    'content' : u'<a href={{url_for("account.regist")}}>重新注册</a>'
+                    'content' : u'<a href={{url_for("front_accent.regist")}}>重新注册</a>'
                 }
                 return flask.render_template('front/result.html',**temp)
             if not xt_cache.get(CAPTCHA) or not xt_cache.check_captcha(CAPTCHA,captcha):
                 temp = {
                     'result' : u'对不起 网页验证码不正确!',
-                    'content' : u'<a href={{url_for("account.regist")}}>重新注册</a>'
+                    'content' : u'<a href={{url_for("front_accent.regist")}}>重新注册</a>'
                 }
                 return flask.render_template('front/result.html',**temp)
             front_user = front_models.FrontUser(username=username,password=password,telephone=telephone)
@@ -59,13 +59,13 @@ class RegisteUser(views.MethodView):
             db.session.commit()
             temp = {
                 'result' : u'恭喜 注册成功！',
-                'content' : u'<a href={{url_for("account.login")}}>前去登录</a>'
+                'content' : u'<a href={{url_for("front_accent.login")}}>前去登录</a>'
             }
             return flask.render_template('front/result.html',**temp)
         else:
             temp = {
                 'result' : form.get_error(),
-                'content' : u'<a href={{url_for("account.regist")}}>重新注册</a>'
+                'content' : u'<a href={{url_for("front_accent.regist")}}>重新注册</a>'
             }
             return flask.render_template('front/result.html',**temp)
 
@@ -87,7 +87,7 @@ class LoginUser(views.MethodView):
             if not xt_cache.get(CAPTCHA) or not xt_cache.check_captcha(CAPTCHA,captcha):
                 temp = {
                     'result': u'验证码不正确重新登陆',
-                    'content': u'<a href={{url_for("account.login")}}>重新登录</a>'
+                    'content': u'<a href={{url_for("front_accent.login")}}>重新登录</a>'
                 }
                 return flask.render_template('front/result.html',**temp)
             front_user = front_models.FrontUser.query.filter_by(telephone=telephone).first()
@@ -100,13 +100,13 @@ class LoginUser(views.MethodView):
             else:
                 temp = {
                     'result': u'当前用户不存在',
-                    'content': u'<a href={{url_for("account.login")}}>重新登录</a>'
+                    'content': u'<a href={{url_for("front_accent.login")}}>重新登录</a>'
                 }
                 return flask.render_template('front/result.html', **temp)
         else:
             temp = {
                 'result': form.get_error(),
-                'content': u'<a href={{url_for("account.login")}}>重新登录</a>'
+                'content': u'<a href={{url_for("front_accent.login")}}>重新登录</a>'
             }
             return flask.render_template('front/result.html', **temp)
 
