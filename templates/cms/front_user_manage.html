@@ -1,0 +1,88 @@
+{% extends 'cms/base_cms_index.html' %}
+{% block title %}
+前台用户管理界面
+{% endblock %}
+{% block head %}
+<style>
+    .top_box{
+        background-color:darkseagreen;
+        overflow: hidden;
+        border-radius: 3px;
+    }
+    .add_admin{
+        margin: 5px 10px;
+    }
+    .sort_select{
+        border: 1px solid grey;
+        background: none;
+        color: saddlebrown;
+        border-radius: 2px;
+        padding-bottom: 3px;
+    }
+    .table tr td:nth-of-type(1){
+        width: 12%;
+    }
+    .table tr td:nth-of-type(2){
+        width: 33%;
+    }
+    .table tr td:nth-of-type(3){
+        width: 15%;
+    }
+    .table tr td:nth-of-type(4){
+        width: 10%;
+    }
+    .table tr td:nth-of-type(5){
+        width: 10%;
+    }
+    .table tr td:nth-of-type(6){
+        width: 10%;
+    }
+    .table tr td:nth-of-type(7){
+        width: 10%;
+    }
+</style>
+<script>
+    $(function(){
+        $('.sort_select').change(function(event){
+            var index = $(this).val();
+            tmp = window.location.href.split('?')[0];
+            window.location = tmp+"?sort="+index;
+        })
+    })
+</script>
+{% endblock %}
+{% block content %}
+<h1>前台用户管理界面：</h1>
+<div class='top_box'>
+    <div class="add_admin">
+        <b>排序：</b>
+        <select class="sort_select">
+            <option value="1" {% if sort=="1" %}selected{% endif %}>按创建时间排序</option>
+            <option value="2" {% if sort=="2" %}selected{% endif %}>按帖子数量排序</option>
+            <option value="3" {% if sort=="3" %}selected{% endif %}>按回帖数量排序</option>
+        </select>
+    </div>
+</div>
+<table class="table table-bordered">
+    <thead>
+        <th>用户名</th>
+        <th>创建时间</th>
+        <th>发帖数量</th>
+        <th>评论数量</th>
+        <th>分组</th>
+        <th>状态</th>
+        <th>操作</th>
+    </thead>
+    {% for front_user in front_users %}
+        <tr>
+        <td>{{ front_user.username }}</td>
+        <td>{{ front_user.create_time }}</td>
+        <td>4</td>
+        <td>10</td>
+        <td></td>
+        <td>{% if front_user.is_live %}<span class="label label-success">可用</span>{% else %}<span class="label label-danger">禁用</span>{% endif %}</td>
+        <td><a href="{{ url_for('cms.edit_front_user',id=front_user.id) }}" class='btn btn-xs btn-primary'>编辑</a></td>
+    </tr>
+    {% endfor %}
+</table>
+{% endblock %}

@@ -48,7 +48,7 @@ $(function () {
     }else if(url.indexOf('roles') >= 0){
         var roleManageLi = $('.role-manage');
         roleManageLi.addClass('unfold').siblings().removeClass('unfold');
-    }else if(url.indexOf('users') >= 0){
+    }else if(url.indexOf('front_user_manage') >= 0){
         var userManageLi = $('.user-manage');
         userManageLi.addClass('unfold').siblings().removeClass('unfold');
     }else if(url.indexOf('cmsuser_manage') >= 0){

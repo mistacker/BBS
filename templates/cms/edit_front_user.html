@@ -1,0 +1,81 @@
+{% extends 'cms/base_cms_index.html' %}
+{% block title %}
+编辑前台用户界面
+{% endblock %}
+{% block head %}
+<style>
+.table>tbody>tr>td{
+    text-align: center;
+    vertical-align: middle;
+}
+</style>
+<script>
+$(function(){
+    $('.mybtn').click(function(event){
+        event.preventDefault();
+        var main = $(this).attr('info');
+        xtajax.post({
+            'url':'/disable/',
+            'data':{
+                'id':main
+            },
+            'success':function(data){
+                if(data['code']==200){
+                    setTimeout(function(){
+                        window.location.reload();
+                    },500);
+                    xtalert.alertSuccessToast(data['message']);
+                }
+            },
+            'fail':function(error){
+                xtalert.alertError('网络错误!')
+            }
+        })
+    })
+})
+</script>
+{% endblock %}
+{% block content %}
+<h1>编辑用户-{{ front_user.username }}</h1>
+    <table class="table table-bordered">
+        <tr>
+            <td><b>用户名：</b></td>
+            <td><input type="text" class="form-control" value="{{ front_user.username }}" disabled></td>
+            <td><b>手机号码：</b></td>
+            <td><input type="text" class="form-control" value="{{ front_user.telephone }}" disabled></td>
+        </tr>
+        <tr>
+            <td><b>邮箱：</b></td>
+            <td><input type="text" class="form-control" value="{{ front_user.email }}" disabled></td>
+            <td><b>真是姓名：</b></td>
+            <td><input type="text" class="form-control" value="{{ front_user.relname }}" disabled></td>
+        </tr>
+        <tr>
+            <td><b>性别：</b></td>
+            <td><input type="text" class="form-control" value="{% if front_user.gender == 1 %}男{% elif front_user.gender == 2 %}女{% else %}保密{% endif %}" disabled></td>
+            <td><b>QQ：</b></td>
+            <td><input type="text" class="form-control" value="{{ front_user.qq }}" disabled></td>
+        </tr>
+        <tr>
+            <td><b>积分：</b></td>
+            <td><input type="text" class="form-control" value="{{ front_user.bbs_points }}" disabled></td>
+            <td><b>个性签名：</b></td>
+            <td><input type="text" class="form-control" value="{{ front_user.signature }}" disabled></td>
+        </tr>
+        <tr>
+            <td><b>创建时间：</b></td>
+            <td><input type="text" class="form-control" value="{{ front_user.create_time }}" disabled></td>
+            <td><b>最后登录时间：</b></td>
+            <td><input type="text" class="form-control" value="{{ front_user.lask_login_time }}" disabled></td>
+        </tr>
+        <tr>
+            <td><b>状态：</b></td>
+            <td><input type="text" class="form-control" value="{% if front_user.is_live %}可用{% else %}禁用{% endif %}" disabled></td>
+            <td><b>添加分组：</b></td>
+            <td></td>
+        </tr>
+        <tr>
+            <td colspan="4"><button class="btn btn-primary">保存</button>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{% if front_user.is_live %}<button class="mybtn btn btn-danger" info="{{ front_user.id }}">禁用</button>{% else %}<button class="mybtn btn btn-success" info="{{ front_user.id }}">解禁</button>{% endif %}</td>
+        </tr>
+    </table>
+{% endblock %}

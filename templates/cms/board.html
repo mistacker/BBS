@@ -1,0 +1,41 @@
+{% extends 'cms/base_cms_index.html' %}
+{% block title %}
+板块管理
+{% endblock %}
+{% block head %}
+<style>
+    .top_box{
+        background-color:darkseagreen;
+        overflow: hidden;
+        border-radius: 3px;
+    }
+    .add_admin{
+        float: right;
+        margin: 5px 10px;
+    }
+</style>
+{% endblock %}
+{% block content %}
+<h1>板块管理界面:</h1>
+<div class='top_box'>
+    <a href='{{ url_for('cms.add_manager') }}' class="add_admin btn btn-warning">添加新板块</a>
+</div>
+<table class="table table-bordered">
+    <thead>
+        <th>板块名称</th>
+        <th>创建者</th>
+        <th>创建时间</th>
+        <th>帖子数</th>
+        <th>操作</th>
+    </thead>
+    {% for board in boards %}
+    <tr>
+        <td>{{ board.name }}</td>
+        <td>{{ board.cms_user.name }}</td>
+        <td>{{ board.create_time }}</td>
+        <td>未实现</td>
+        <td><button class='btn btn-xs btn-primary'>编辑</button>&nbsp;&nbsp;<button class='btn btn-xs btn-danger'>删除</button></td>
+    </tr>
+    {% endfor %}
+</table>
+{% endblock %}

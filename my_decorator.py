@@ -6,7 +6,7 @@ from functools import wraps
 from models.cms_models import CMSUser,User_power
 from utils import xt_json
 
-# 登录装饰器
+# cms用户登录装饰器
 def login_required(func):
     @wraps(func)
     def wapper(*args,**kwargs):
@@ -33,3 +33,13 @@ def prove_power(is_power):
 # 验证是否有超级管理员权限
 def prove_power_super_admin(func):
     return prove_power(User_power.admin)(func)
+
+# front用户登录装饰器
+def front_login_required(func):
+    @wraps(func)
+    def wapper(*args,**kwargs):
+        if session.get(constants.FRONT_USER_TEL):
+            return func(*args,**kwargs)
+        else:
+            return redirect(url_for('front_accent.login'))
+    return wapper

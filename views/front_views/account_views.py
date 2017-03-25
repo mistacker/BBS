@@ -4,7 +4,7 @@ from flask import Blueprint
 from flask import views
 import flask
 from utils.xt_img_captcha import Captcha
-from constants import CAPTCHA
+from constants import CAPTCHA,FRONT_USER_TEL
 from utils import xt_cache,xt_json
 from config import get_tel_captcha
 from forms import front_forms
@@ -17,15 +17,18 @@ except:
 
 bp = Blueprint('front_accent',__name__,url_prefix='/accent')
 
-@bp.route('/index/')
-def index():
-    return flask.render_template('front/front_index.html')
 
 # 注册
 class RegisteUser(views.MethodView):
 
     def get(self):
-        return flask.render_template('front/front_regist.html')
+        tel_val = flask.request.args.get('tel_val')
+        name_val = flask.request.args.get('name_val')
+        if not tel_val:
+            tel_val = ''
+        if not name_val:
+            name_val = ''
+        return flask.render_template('front/front_regist.html',tel_val=tel_val,name_val=name_val)
 
     def post(self):
         form = front_forms.Front_user_regist_form(flask.request.form)
@@ -39,19 +42,19 @@ class RegisteUser(views.MethodView):
             if front_user:
                 temp = {
                     'result' : u'对不起 该用户名已存在!',
-                    'content' : u'<a href={{url_for("front_accent.regist")}}>重新注册</a>'
+                    'content' : u'重新注册',
+                    'url':'front_accent.regist',
+                    'tel_val':telephone,
+                    'name_val':username
                 }
                 return flask.render_template('front/result.html',**temp)
             if not xt_cache.get(telephone) or xt_cache.get(telephone) != tel_captcha:
                 temp = {
                     'result' : u'对不起 手机验证码不正确!',
-                    'content' : u'<a href={{url_for("front_accent.regist")}}>重新注册</a>'
-                }
-                return flask.render_template('front/result.html',**temp)
-            if not xt_cache.get(CAPTCHA) or not xt_cache.check_captcha(CAPTCHA,captcha):
-                temp = {
-                    'result' : u'对不起 网页验证码不正确!',
-                    'content' : u'<a href={{url_for("front_accent.regist")}}>重新注册</a>'
+                    'content' : u'重新注册',
+                    'url':'front_accent.regist',
+                    'tel_val':telephone,
+                    'name_val':username
                 }
                 return flask.render_template('front/result.html',**temp)
             front_user = front_models.FrontUser(username=username,password=password,telephone=telephone)
@@ -59,13 +62,23 @@ class RegisteUser(views.MethodView):
             db.session.commit()
             temp = {
                 'result' : u'恭喜 注册成功！',
-                'content' : u'<a href={{url_for("front_accent.login")}}>前去登录</a>'
+                'content' : u'前去登录',
+                'url':'front_accent.login',
             }
             return flask.render_template('front/result.html',**temp)
         else:
+            telephone = flask.request.form.get('telephone')
+            username = flask.request.form.get('username')
+            if not telephone:
+                telephone = ''
+            if not username:
+                username = ''
             temp = {
                 'result' : form.get_error(),
-                'content' : u'<a href={{url_for("front_accent.regist")}}>重新注册</a>'
+                'content' : u'重新注册',
+                'url':'front_accent.regist',
+                'tel_val':telephone,
+                'name_val':username
             }
             return flask.render_template('front/result.html',**temp)
 
@@ -75,38 +88,51 @@ bp.add_url_rule('/regist/',view_func=RegisteUser.as_view('regist'))
 class LoginUser(views.MethodView):
 
     def get(self):
-        return flask.render_template('front/front_login.html')
+        tel_val = flask.request.args.get('tel_val')
+        if not tel_val:
+            tel_val = ''
+        return flask.render_template('front/front_login.html',tel_val=tel_val)
 
     def post(self):
         form = front_forms.Front_login_form(flask.request.form)
         if form.validate():
             telephone = form.telephone.data
             password = form.password.data
-            captcha = form.captcha.data
+            # captcha = form.captcha.data
             remember = form.remember.data
-            if not xt_cache.get(CAPTCHA) or not xt_cache.check_captcha(CAPTCHA,captcha):
-                temp = {
-                    'result': u'验证码不正确重新登陆',
-                    'content': u'<a href={{url_for("front_accent.login")}}>重新登录</a>'
-                }
-                return flask.render_template('front/result.html',**temp)
             front_user = front_models.FrontUser.query.filter_by(telephone=telephone).first()
+            if not front_user.is_live:
+                temp = {
+                    'result': u'当前用户已被禁用!',
+                    'content': u'重新登录',
+                    'url': 'front_accent.login',
+                    'tel_val': telephone
+                }
+                return flask.render_template('front/result.html', **temp)
             if front_user and front_user.check_pwd(password):
                 if remember:
                     flask.session.permanent = True
                 else:
                     flask.session.permanent = False
-                return flask.redirect(flask.url_for('front_accent.index'))
+                flask.session[FRONT_USER_TEL] = telephone
+                return flask.redirect(flask.url_for('front_post.index'))
             else:
                 temp = {
-                    'result': u'当前用户不存在',
-                    'content': u'<a href={{url_for("front_accent.login")}}>重新登录</a>'
+                    'result': u'手机号码或者密码不正确!',
+                    'content': u'重新登录',
+                    'url':'front_accent.login',
+                    'tel_val':telephone
                 }
                 return flask.render_template('front/result.html', **temp)
         else:
+            telephone = flask.request.form.get('telephone')
+            if not telephone:
+                telephone = ''
             temp = {
                 'result': form.get_error(),
-                'content': u'<a href={{url_for("front_accent.login")}}>重新登录</a>'
+                'content': u'重新登录',
+                'url':'front_accent.login',
+                'tel_val':telephone
             }
             return flask.render_template('front/result.html', **temp)
 
@@ -148,3 +174,11 @@ def tel():
             return xt_json.json_params_error('内部错误!')
     else:
         return xt_json.json_params_error(form.get_error())
+
+@bp.before_request
+def my_front_before_request():
+    telephone = flask.session.get(FRONT_USER_TEL)
+    if telephone:
+        front_user = front_models.FrontUser.query.filter_by(telephone=telephone).first()
+        if front_user:
+            flask.g.front_user = front_user

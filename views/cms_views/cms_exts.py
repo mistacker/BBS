@@ -5,6 +5,8 @@ import flask
 from flask.views import MethodView
 from forms.cms_forms import CMS_user_login_form,Set_pwd_form,check_email_form,Set_email_form,Add_manager_form,Add_group_form
 from models.cms_models import db,CMSUser,CMSRole
+from models.front_models import FrontUser
+from models.public_models import BoardModel
 from constants import USER_SESSION_ID
 from my_decorator import login_required,prove_power_super_admin
 from utils import xt_json
@@ -261,6 +263,59 @@ def add_edit_cms_user():
         cms_user.cms_roles = roles
         db.session.commit()
         return xt_json.json_result_ok('恭喜 修改成功!')
+
+# 前台用户管理界面
+@bp.route('/front_user_manage/')
+@login_required
+def front_user_manage():
+    index = flask.request.args.get('sort')
+    if not index:
+        front_users = FrontUser.query.all()
+        return flask.render_template('cms/front_user_manage.html',front_users=front_users)
+    if index == '1':
+        front_users = FrontUser.query.order_by(FrontUser.create_time.desc()).all()
+        return flask.render_template('cms/front_user_manage.html',front_users=front_users,sort='1')
+    if index == '2':
+        front_users = FrontUser.query.all()
+        return flask.render_template('cms/front_user_manage.html',front_users=front_users,sort='2')
+    if index == '3':
+        front_users = FrontUser.query.order_by(FrontUser.id.desc()).all()
+        return flask.render_template('cms/front_user_manage.html',front_users=front_users,sort='3')
+    return flask.abort(404)
+        # 1 时间 2 帖子数量 3 回帖数量
+    # if index == '1':
+    #     front_users = FrontUser.query.order_by(FrontUser.create_time.desc()).all()
+    #     return flask.jsonify({'code':200,'html':flask.render_template('cms/front_user_manage.html',front_users=front_users)})
+
+# 编辑前台用户管理界面
+@bp.route('/edit_front_user/<id>',methods=['GET','POST'])
+@login_required
+def edit_front_user(id):
+    if flask.request.method == 'GET':
+        front_user = FrontUser.query.filter_by(id=id).first()
+        return flask.render_template('cms/edit_front_user.html',front_user=front_user)
+
+# 板块管理
+@bp.route('/board/')
+@login_required
+def cms_board():
+    boards = BoardModel.query.all()
+    return flask.render_template('cms/board.html',boards=boards)
+
+# 禁用前台用户
+@bp.route('/disable/',methods=['POST'])
+def deisable():
+    id = flask.request.form.get('id')
+    front_user = FrontUser.query.filter_by(id=id).first()
+    if front_user.is_live:
+        front_user.is_live = False
+        db.session.commit()
+        return xt_json.json_result_ok('禁用成功!')
+    else:
+        front_user.is_live = True
+        db.session.commit()
+        return xt_json.json_result_ok('解禁成功!')
+
 
 @bp.context_processor
 def cms_context_processor():
