@@ -1,0 +1,70 @@
+{% extends 'front/front_base.html' %}
+{% block title %}
+发表帖子
+{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" href="{{ urlFor('common/dist/css/wangEditor.min.css') }}">
+<script src="{{ urlFor('common/dist/js/wangEditor.min.js') }}"></script>
+<script>
+    $(function(){
+            var edit = new wangEditor('ta');
+            edit.create();
+        })
+</script>
+<style>
+    #ta{
+        height: 400px;
+    }
+    img.yzm.btn {
+        padding: 0;
+    }
+    .my_input{
+        width: 260px;
+    }
+</style>
+{% endblock %}
+{% block container %}
+<form class="form" method="post">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <div class="form-group">
+        <div class="input-group">
+            <span class="input-group-addon">标题</span>
+            <input type="text" class="form-control" name="title" placeholder="请输入标题(字数在3-100个数之间)">
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="input-group">
+            <span class="input-group-addon">板块</span>
+            <select class="form-control">
+                {% for board in boards %}
+                    <option value="{{ board.id }}">{{ board.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="form-input">
+            <textarea id="ta"></textarea>
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="form-input">
+            <button class="btn btn-info">上传图片或视频</button>
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="input-group my_input">
+            <input type="text" placeholder="验证码" name="captcha" class="form-control">
+            <span class="input-group-addon" style="padding: 0">
+                <img src="{{ url_for('front_accent.get_yzm') }}" class="yzm btn">
+            </span>
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="form-input">
+            <button class="btn btn-danger">发布帖子</button>
+        </div>
+    </div>
+</form>
+{% endblock %}

@@ -39,7 +39,7 @@ $(function () {
     } else if(url.indexOf('posts') >= 0){
         var postManageLi = $('.post-manage');
         postManageLi.addClass('unfold').siblings().removeClass('unfold');
-    }else if(url.indexOf('boards') >= 0){
+    }else if(url.indexOf('board') >= 0){
         var boardManageLi = $('.board-manage');
         boardManageLi.addClass('unfold').siblings().removeClass('unfold');
     }else if(url.indexOf('permissions') >= 0){

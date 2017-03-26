@@ -41,5 +41,5 @@ def front_login_required(func):
         if session.get(constants.FRONT_USER_TEL):
             return func(*args,**kwargs)
         else:
-            return redirect(url_for('front_accent.login'))
+            abort(401)
     return wapper

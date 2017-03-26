@@ -1,10 +1,55 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
-这是front首页
-</body>
-</html>
+{% extends 'front/front_base.html' %}
+{% block title %}
+首页
+{% endblock %}
+{% block head %}
+<link rel="stylesheet" href="{{ urlFor('front/css/iconfont/iconfont.css') }}" >
+<link rel="stylesheet" href="{{ urlFor('front/css/front_index.css') }}" >
+{% endblock %}
+{% block container %}
+    <div class="lg-container">
+        <ul class="top-group">
+            <li>
+                <a href="#">
+                    <div class="icon-group"><i class="iconfont icon-zuixin"></i></div>
+                    <p class="block-title">最新帖子</p>
+                </a>
+            </li>
+            <li>
+                <a href="#">
+                    <div class="icon-group"><i class="iconfont icon-jinghua"></i></div>
+                    <p class="block-title">精华帖子</p>
+                </a>
+            </li>
+            <li>
+                <a href="#">
+                    <div class="icon-group"><i class="iconfont icon-zhichizuiduoxianti"></i></div>
+                    <p class="block-title">点赞最多</p>
+                </a>
+            </li>
+            <li>
+                <a href="#">
+                    <div class="icon-group"><i class="iconfont icon-appzuixinhuifu"></i></div>
+                    <p class="block-title">评论最多</p>
+                </a>
+            </li>
+        </ul>
+        <div class="post-list-container outer-border white-bg">
+            <div class="post-con">
+                <ul class="post-llist"></ul>
+            </div>
+        </div>
+    </div>
+    <div class="sm-container">
+        <div class="add-post-group"><a href="{{ url_for('front_post.add_post') }}" class="btn btn-warning btn-block">发表新帖子</a></div>
+        <div class="list-group">
+            <span class="list-group-item header">板块</span>
+            {% for board in boards %}
+                <a href="#" class="list-group-item">
+                    {{ board.name }}
+                    <span class="badge">0</span>
+                </a>
+            {% endfor %}
+        </div>
+    </div>
+{% endblock %}

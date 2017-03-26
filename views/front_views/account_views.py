@@ -6,7 +6,7 @@ import flask
 from utils.xt_img_captcha import Captcha
 from constants import CAPTCHA,FRONT_USER_TEL
 from utils import xt_cache,xt_json
-from config import get_tel_captcha
+from utils.xt_al_big_fish import get_tel_captcha
 from forms import front_forms
 from models import front_models
 from exts import db
@@ -174,11 +174,3 @@ def tel():
             return xt_json.json_params_error('内部错误!')
     else:
         return xt_json.json_params_error(form.get_error())
-
-@bp.before_request
-def my_front_before_request():
-    telephone = flask.session.get(FRONT_USER_TEL)
-    if telephone:
-        front_user = front_models.FrontUser.query.filter_by(telephone=telephone).first()
-        if front_user:
-            flask.g.front_user = front_user

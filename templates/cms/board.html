@@ -13,12 +13,105 @@
         float: right;
         margin: 5px 10px;
     }
+    table tr td:nth-of-type(5){
+        width: 15%;
+    }
 </style>
+<script>
+$(function(){
+    $('.add_admin').click(function(event){
+        event.preventDefault();
+        xtalert.alertOneInput({
+            'title':'请输入',
+            'text':'请输入模块名称',
+            'placeholder':'模块名称',
+            'confirmCallback':function(inputValue){
+                xtajax.post({
+                    'url':'/add_board/',
+                    'data':{
+                        'name':inputValue
+                    },
+                    'success':function(data){
+                        if(data['code']==200){
+                            xtalert.alertSuccessToast(data['message']);
+                            setTimeout(function(){
+                                window.location.reload();
+                            },500)
+                        }else{
+                            xtalert.alertError(data['message']);
+                        }
+                    },
+                    'fail':function(error){
+                        xtalert.alertError('网络错误!')
+                    }
+                })
+            }
+        })
+    });
+    $('.edit_btn').click(function(event){
+        event.preventDefault();
+        var name = $(this).attr('info_name');
+        var id = $(this).attr('info_id');
+        xtalert.alertOneInput({
+            'title':'请输入',
+            'text':'请输入版块名称',
+            'placeholder':name,
+            'confirmCallback':function(inputValue){
+                xtajax.post({
+                    'url':'/edit_board/',
+                    'data':{
+                        'id':id,
+                        'name':inputValue
+                    },
+                    'success':function(data){
+                        if(data['code']==200){
+                            xtalert.alertSuccessToast(data['message']);
+                            setTimeout(function(){
+                                window.location.reload();
+                            },500)
+                        }else{
+                            xtalert.alertErrorToast(data['message']);
+                        }
+                    },
+                    'fail':function(error){
+                        xtalert.alertError('网络错误!')
+                    }
+                })
+            }
+        })
+    });
+    $('.del_btn').click(function(event){
+        event.preventDefault();
+        var id = $(this).attr('info_id');
+        xtalert.alertConfirm({
+            'title':'确认删除',
+            'msg':'您是否要删除该模块',
+            'confirmCallback':function(inputValue){
+                xtajax.post({
+                    'url':'/del_board/',
+                    'data':{
+                        'id':id
+                    },
+                    'success':function(data){
+                        xtalert.alertSuccessToast(data['message']);
+                        setTimeout(function(){
+                            window.location.reload();
+                        },500)
+                    },
+                    'fail':function(error){
+                        xtalert.alertError('网络错误!');
+                    }
+                })
+            }
+        })
+    })
+})
+</script>
 {% endblock %}
 {% block content %}
 <h1>板块管理界面:</h1>
 <div class='top_box'>
-    <a href='{{ url_for('cms.add_manager') }}' class="add_admin btn btn-warning">添加新板块</a>
+    <button class="add_admin btn btn-warning">添加新板块</button>
 </div>
 <table class="table table-bordered">
     <thead>
@@ -31,10 +124,10 @@
     {% for board in boards %}
     <tr>
         <td>{{ board.name }}</td>
-        <td>{{ board.cms_user.name }}</td>
+        <td>{{ board.cms_user.username }}</td>
         <td>{{ board.create_time }}</td>
         <td>未实现</td>
-        <td><button class='btn btn-xs btn-primary'>编辑</button>&nbsp;&nbsp;<button class='btn btn-xs btn-danger'>删除</button></td>
+        <td><button class='edit_btn btn btn-xs btn-primary' info_name="{{ board.name }}" info_id="{{ board.id }}">编辑</button>&nbsp;&nbsp;<button class='del_btn btn btn-xs btn-danger' info_id="{{ board.id }}">删除</button></td>
     </tr>
     {% endfor %}
 </table>

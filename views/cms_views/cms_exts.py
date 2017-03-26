@@ -282,10 +282,6 @@ def front_user_manage():
         front_users = FrontUser.query.order_by(FrontUser.id.desc()).all()
         return flask.render_template('cms/front_user_manage.html',front_users=front_users,sort='3')
     return flask.abort(404)
-        # 1 时间 2 帖子数量 3 回帖数量
-    # if index == '1':
-    #     front_users = FrontUser.query.order_by(FrontUser.create_time.desc()).all()
-    #     return flask.jsonify({'code':200,'html':flask.render_template('cms/front_user_manage.html',front_users=front_users)})
 
 # 编辑前台用户管理界面
 @bp.route('/edit_front_user/<id>',methods=['GET','POST'])
@@ -299,7 +295,7 @@ def edit_front_user(id):
 @bp.route('/board/')
 @login_required
 def cms_board():
-    boards = BoardModel.query.all()
+    boards = BoardModel.query.filter_by(is_live=True).all()
     return flask.render_template('cms/board.html',boards=boards)
 
 # 禁用前台用户
@@ -316,12 +312,45 @@ def deisable():
         db.session.commit()
         return xt_json.json_result_ok('解禁成功!')
 
+# 添加模块管理
+@bp.route('/add_board/',methods=['POST'])
+def add_board():
+    name = flask.request.form.get('name')
+    board = BoardModel.query.filter_by(name=name,is_live=True).first()
+    if board:
+        return xt_json.json_params_error('对不起 该模块已存在!')
+    board = BoardModel(name=name)
+    flask.g.cms_user.boards.append(board)
+    db.session.commit()
+    return xt_json.json_result_ok('恭喜，添加成功!')
+
+# 编辑前台模块
+@bp.route('/edit_board/',methods=['POST'])
+def edit_board():
+    id = flask.request.form.get('id')
+    name = flask.request.form.get('name')
+    board = BoardModel.query.filter_by(name=name,is_live=True).first()
+    if board:
+        return xt_json.json_params_error('对不起 该模块已存在!')
+    board = BoardModel.query.get(id)
+    board.name = name
+    db.session.commit()
+    return xt_json.json_result_ok('修改成功!')
+
+# 删除前台模块
+@bp.route('/del_board/',methods=['POST'])
+def del_board():
+    id = flask.request.form.get('id')
+    board = BoardModel.query.get(id)
+    board.is_live = False
+    db.session.commit()
+    return xt_json.json_result_ok('删除成功!')
 
 @bp.context_processor
 def cms_context_processor():
     email = flask.session.get(USER_SESSION_ID)
     if email:
-        user = CMSUser.query.filter_by(email=email).first()
+        user = flask.g.cms_user
         return {'user':user}
     else:
         return {}
