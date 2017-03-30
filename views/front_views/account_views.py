@@ -138,7 +138,14 @@ class LoginUser(views.MethodView):
 
 bp.add_url_rule('/login/',view_func=LoginUser.as_view('login'))
 
+# 退出登录
+@bp.route('/logout/')
+def logout():
+    front_user_tel = flask.session.pop(FRONT_USER_TEL)
+    return flask.redirect(flask.url_for("front_post.index"))
 
+
+# 获取图片验证码
 @bp.route('/get_yzm/')
 def get_yzm():
     captcha = Captcha()
@@ -157,6 +164,7 @@ def get_yzm():
     response.content_type = 'image/png'
     return response
 
+# 发送手机验证码
 @bp.route('/tel/',methods=['POST'])
 def tel():
     form = front_forms.Front_check_telephone(flask.request.form)

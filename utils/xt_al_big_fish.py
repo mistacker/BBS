@@ -3,10 +3,9 @@
 
 import top.api
 from utils.xt_cache import create_num_captcha
+from constants import appkey,secret
 
 # 阿里大于参数 及方法封装
-appkey = '23584025'
-secret = 'de6149e7409f9085b5bb486656d1d5af'
 
 # 获取手机验证码
 def get_tel_captcha(tel):

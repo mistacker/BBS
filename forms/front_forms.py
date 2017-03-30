@@ -36,3 +36,8 @@ class Front_login_form(Form_img_captcha):
     telephone = StringField(validators=[Regexp('^[1][358][0-9]{9}$',message=u'手机号码不符合规矩')])
     password = StringField(validators=[InputRequired(message=u'密码不能为空')])
     remember = BooleanField()
+
+class Front_add_post_form(Form_img_captcha):
+    title = StringField(validators=[Length(min=3,max=100,message=u'标题字数在3到100个数之间')])
+    board_id = IntegerField(validators=[InputRequired()])
+    content = StringField(validators=[InputRequired(u'内容不能为空')])

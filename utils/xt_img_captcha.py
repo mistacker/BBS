@@ -1,6 +1,5 @@
 #coding:utf-8
-import random
-import string
+import random,string
 # pip install Pillow
 # Image:是一个画板(context),ImageDraw:是一个画笔, ImageFont:画笔的字体
 from PIL import Image,ImageDraw,ImageFont

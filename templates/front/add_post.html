@@ -6,11 +6,106 @@
 {% block head %}
 <link rel="stylesheet" href="{{ urlFor('common/dist/css/wangEditor.min.css') }}">
 <script src="{{ urlFor('common/dist/js/wangEditor.min.js') }}"></script>
+<script src="{{ urlFor('common/utils/xt_qiniu.js') }}"></script>
 <script>
+    // 初始化验证码和富文本编辑器
     $(function(){
-            var edit = new wangEditor('ta');
-            edit.create();
-        })
+        var edit = new wangEditor('ta');
+        edit.create();
+        window.edit = edit;
+
+        $('.yzm').click(function(event){
+            event.preventDefault();
+            var old_src = $(this).attr('src');
+            old_src = old_src.split('?')[0];
+            var new_src = old_src+'?t='+Math.random();
+            $(this).attr('src',new_src);
+        });
+    });
+    // 发表文章
+    $(function(){
+        $('.post').click(function(event){
+            event.preventDefault();
+            var title = $('input[name=title]');
+            var board = $('.board').val();
+            var captcha = $('input[name=captcha]');
+            var content = window.edit.$txt.html();
+            if(!title.val()){
+                xtalert.alertError('标题不能为空!');
+                return
+            }
+            if(!captcha.val()){
+                xtalert.alertError('验证码不能为空!');
+                return
+            }
+            if(!content){
+                xtalert.alertError('内容不能为空!');
+                return
+            }
+            xtajax.post({
+                'url':'/add_post/',
+                'data':{
+                    'title':title.val(),
+                    'board_id':board,
+                    'content':content,
+                    'captcha':captcha.val()
+                },
+                'success':function(data){
+                    if(data['code']==200){
+                        xtalert.alertConfirm({
+                            'title':'提示',
+                            'msg':data['message'],
+                            'confirmText':'再发一篇',
+                            'cancelText':'回到首页',
+                            'confirmCallback':function(){
+                                title.val('');
+                                edit.clear();
+                                captcha.val('');
+                                $('.yzm').click();
+                            },
+                            'cancelCallback':function(){
+                                window.location = '/';
+                            }
+                        })
+                    }else{
+                        xtalert.alertError(data['message']);
+                    }
+                },
+                'fail':function(error){
+                    xtalert.alertNetworkError();
+                }
+            })
+        });
+    });
+    // 上传到七牛代码
+    $(function(){
+        var args = {
+            'btn':'toServer',                                      // 点击的按钮
+            'get_token':'/get_token/',                             // 请求的七牛token
+            'domain':'http://ohslbq04h.bkt.clouddn.com',           //七牛空间的域名
+            'uploadProgress':function(up, file){
+                // 显示进度条
+                window.edit.showUploadProgress(file.percent);
+            },
+            'fileUploaded':function(up,file,info,sourcelink){      // 文件上传完成后调用的方法
+                if(file.type.indexOf('video')>=0){
+                    var tmp = "<video width='560' height='300' controls><source src="+sourcelink+"></video>";
+                    // window.edit.$txt.append(tmp);
+                    edit.command(null, 'insertHtml', tmp);
+                }else{
+                    console.log(sourcelink);
+                    var tmp = "<img src="+sourcelink+">";
+                    edit.command(null, 'insertHtml', tmp);
+                    // window.edit.$txt.append(tmp);
+                }
+            },
+            'UploadComplete':function () {
+                // 隐藏进度条
+                edit.hideUploadProgress();
+            }
+        };
+        qn.setup(args);         // 执行七牛代码
+    })
 </script>
 <style>
     #ta{
@@ -26,7 +121,7 @@
 {% endblock %}
 {% block container %}
 <form class="form" method="post">
-    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <!--<input type="hidden" name="csrf_token" value="{{ csrf_token() }}">-->
     <div class="form-group">
         <div class="input-group">
             <span class="input-group-addon">标题</span>
@@ -36,7 +131,7 @@
     <div class="form-group">
         <div class="input-group">
             <span class="input-group-addon">板块</span>
-            <select class="form-control">
+            <select class="form-control board">
                 {% for board in boards %}
                     <option value="{{ board.id }}">{{ board.name }}</option>
                 {% endfor %}
@@ -50,7 +145,7 @@
     </div>
     <div class="form-group">
         <div class="form-input">
-            <button class="btn btn-info">上传图片或视频</button>
+            <button class="btn btn-info" id="toServer">上传图片或视频</button>
         </div>
     </div>
     <div class="form-group">
@@ -63,7 +158,7 @@
     </div>
     <div class="form-group">
         <div class="form-input">
-            <button class="btn btn-danger">发布帖子</button>
+            <button class="post btn btn-danger">发布帖子</button>
         </div>
     </div>
 </form>
