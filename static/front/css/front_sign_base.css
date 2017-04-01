@@ -32,3 +32,11 @@ body{
 #send-captcha-btn{
     cursor: pointer;
 }
+
+.captcha-addon{
+    padding: 0;
+}
+.captcha-img{
+    width: 80px;
+    height: 30px;
+}

@@ -5,12 +5,7 @@ a, abbr, acronym, address, applet, article, aside, audio, b, big, blockquote, bo
     list-style: none;
     vertical-align: baseline;
 }
-.dropdown-toggle img {
-    width: 16px;
-    vertical-align: middle;
-    margin-right: 2px;
-    margin-bottom: 1px;
-}
+
 .form-control:focus {
   box-shadow: none;
   border-color: #ccc;

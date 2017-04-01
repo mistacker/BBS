@@ -36,9 +36,33 @@
         </ul>
         <div class="post-list-container outer-border white-bg">
             <div class="post-con">
-                <ul class="post-llist"></ul>
+                <ul class="post-llist">
+                    {% for post in posts %}
+                    <li style="margin: 25px 0">
+                        <div class="post-list-img col-md-1 col-lg-1 col-ms-1" style="padding-left: 0">
+                            <a href="#">
+                                <img src="{{ urlFor('images/logo.jpg') }}" alt="">
+                            </a>
+                        </div>
+                        <div class="post-list-con">
+                            <div class="title">
+                                <a class="title_name" href="{{ url_for('front_post.post_detail',id=post.id) }}">
+                                    {{ post.title }}
+                                </a>
+                            </div>
+                            <div class="auth-msg">
+                                <a href="#" class="user_name">{{ post.front_user.username }}</a>
+                                <span class="time">{{ post.create_time }}</span>
+                                <span class="comment-count">评论：10</span>
+                                <span class="read-count">阅读：10</span>
+                            </div>
+                        </div>
+                    </li>
+                    {% endfor %}
+                </ul>
             </div>
         </div>
+        {% include 'common/common_paging.html' %}
     </div>
     <div class="sm-container">
         <div class="add-post-group"><a href="{{ url_for('front_post.add_post') }}" class="btn btn-warning btn-block">发表新帖子</a></div>
@@ -47,9 +71,10 @@
             {% for board in boards %}
                 <a href="#" class="list-group-item">
                     {{ board.name }}
-                    <span class="badge">0</span>
+                    <span class="badge">{{ board.posts|count }}</span>
                 </a>
             {% endfor %}
         </div>
     </div>
+
 {% endblock %}

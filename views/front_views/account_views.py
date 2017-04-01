@@ -146,11 +146,11 @@ def logout():
 
 
 # 获取图片验证码
-@bp.route('/get_yzm/')
-def get_yzm():
+@bp.route('/get_yzm/<int:time>')
+def get_yzm(time):
     captcha = Captcha()
     text,img = captcha.gene_code()
-    xt_cache.set(CAPTCHA,text,3*60)
+    xt_cache.set(CAPTCHA,text,time)
     # StringIO相当于是一个管道
     out = StringIO()
     # 把image塞到StringIO这个管道中

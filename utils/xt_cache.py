@@ -53,6 +53,8 @@ def create_num_captcha(num,key,timeout=60):
 # 判断验证码是否相等
 def check_captcha(key,web_captcha):
     ser_captcha = get(key)
+    if not ser_captcha:
+        return False
     if ser_captcha.lower() == web_captcha.lower():
         return True
     else:

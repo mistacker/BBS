@@ -1,0 +1,157 @@
+{% extends 'cms/base_cms_index.html' %}
+{% block title %}
+帖子管理界面
+{% endblock %}
+{% block head %}
+<style>
+.top_box{
+    background-color:darkseagreen;
+    overflow: hidden;
+    border-radius: 3px;
+}
+.add_admin{
+    margin: 5px 10px;
+    display: inline;
+}
+.left{
+    float: left;
+}
+.right{
+    float: right;
+}
+.sort_select{
+    border: 1px solid grey;
+    background: none;
+    color: saddlebrown;
+    border-radius: 2px;
+    padding-bottom: 3px;
+}
+.table tr td:nth-of-type(1){
+    width: 25%;
+}
+.table tr td:nth-of-type(2){
+    width: 20%;
+}
+.table tr td:nth-of-type(3){
+    width: 15%;
+}
+.table tr td:nth-of-type(4){
+    width: 15%;
+}
+.table tr td:nth-of-type(5){
+    width: 15%;
+}
+</style>
+<script>
+$(function(){
+    $('.btn_del').click(function(event){
+        event.preventDefault();
+        var id = $(this).attr('info');
+        xtalert.alertConfirm({
+            'title':'删除',
+            'msg':'您是否确认要删除?',
+            'confirmText':'删除',
+            'cancelText':'取消',
+            'confirmCallback':function(){
+                xtajax.get({
+                    'url':'/cms_post_operate/',
+                    'data':{
+                        'id':id
+                    },
+                    'success':function(data){
+                        if(data['code']==200){
+                            xtalert.alertSuccessToast(data['message']);
+                            setTimeout(function(){
+                                window.location.reload();
+                            },500)
+                        }else{
+                            xtalert.alertError(data['message'])
+                        }
+                    },
+                    'fail':function(error){
+                        xtalert.alertNetworkError()
+                    }
+                })
+            }
+        })
+    });
+    $('.btn_pick').click(function (event) {
+        event.preventDefault();
+        var id = $(this).attr('info');
+        xtajax.post({
+            'url':'/cms_post_operate/',
+            'data':{
+                'id':id
+            },
+            'success':function(data){
+                if(data['code']==200){
+                    xtalert.alertSuccessToast(data['message']);
+                    setTimeout(function(){
+                        window.location.reload();
+                    },500)
+                }else{
+                    xtalert.alertError(data['message']);
+                }
+            },
+            'fail':function(error){
+                xtalert.alertNetworkError()
+            }
+        })
+    });
+    $('.sel_left').change(function(){
+        var val = $(this).val();
+        var oldSrc = window.location.href.split('?')[0];
+        newSrc = oldSrc+'?sort='+val;
+        window.location = newSrc;
+    });
+})
+</script>
+{% endblock %}
+{% block content %}
+<h1>帖子管理界面：</h1>
+<div class='top_box'>
+    <div class="add_admin left">
+        <b>排序：</b>
+        <select class="sel_left sort_select">
+            <option value="1" {% if sort=="1" %}selected{% endif %}>按时间排序</option>
+            <option value="2" {% if sort=="2" %}selected{% endif %}>按精品排序</option>
+            <option value="3" {% if sort=="3" %}selected{% endif %}>按阅读量排序</option>
+        </select>
+    </div>
+    <div class="add_admin right">
+        <b>过滤板块：</b>
+        <select class="sel_right sort_select">
+            <option value="0">所有</option>
+            {% for board in boards %}
+                <option value="{{ board.id }}">{{ board.name }}</option>
+            {% endfor %}
+        </select>
+    </div>
+</div>
+<table class="table table-bordered">
+    <thead>
+        <th>标题</th>
+        <th>发布时间</th>
+        <th>作者</th>
+        <th>板块</th>
+        <th>操作</th>
+    </thead>
+    {% for post in posts %}
+        <tr>
+        <td>{{ post.title }}</td>
+        <td>{{ post.create_time }}</td>
+        <td>{{ post.front_user.username }}</td>
+        <td>{{ post.board.name }}</td>
+        <td>
+        {% if post.pick %}
+            <a class='btn_pick btn btn-xs btn-primary' info="{{ post.id }}">取消加精</a>&nbsp;&nbsp;
+        {% else %}
+            <a class='btn_pick btn btn-xs btn-success' info="{{ post.id }}">加精</a>&nbsp;&nbsp;
+        {% endif %}
+            <a class='btn_del btn btn-xs btn-danger' info="{{ post.id }}">移除</a>
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+{% include 'common/common_paging.html' %}
+{% endblock %}

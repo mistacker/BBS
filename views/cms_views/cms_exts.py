@@ -6,10 +6,10 @@ from flask.views import MethodView
 from forms.cms_forms import CMS_user_login_form,Set_pwd_form,check_email_form,Set_email_form,Add_manager_form,Add_group_form
 from models.cms_models import db,CMSUser,CMSRole
 from models.front_models import FrontUser
-from models.public_models import BoardModel
+from models.public_models import BoardModel,Post,Pick
 from constants import USER_SESSION_ID
 from my_decorator import login_required,prove_power_super_admin
-from utils import xt_json
+from utils import xt_json,xt_fy
 from utils.xt_mail import send_mail
 from utils import xt_cache
 
@@ -132,16 +132,101 @@ def send_email_captcha():
     else:
         return xt_json.json_params_error(form.get_error())
 
+# 帖子管理
+@bp.route('/cms_posts/')
+@login_required
+def cms_posts():
+    return cms_posts_page(1)
+
+@bp.route('/cms_posts/<int:page>')
+@login_required
+def cms_posts_page(page):
+    # 1. 按时间
+    # 2. 按精品
+    # 3. 按阅读量
+    tablename = Post
+    start_post, end_post, end_page, web_page = xt_fy.paging(8, tablename, page)
+    sort_id = flask.request.args.get('sort')
+    posts = ''
+    if not sort_id:
+        posts = Post.query.filter_by(is_live=True)[start_post:end_post]
+        boards = BoardModel.query.filter_by(is_live=True).all()
+        content = {
+            'end_page': end_page,
+            'web_pages': web_page,
+            'page': page,
+            'url': 'cms.cms_posts_page',
+            'posts':posts,
+            'boards':boards
+        }
+        return flask.render_template('cms/cms_posts.html', **content)
+    elif sort_id == '1':
+        posts = Post.query.order_by(Post.create_time).filter_by(is_live=True)[start_post:end_post]
+    elif sort_id == '2':
+        posts = db.session.query(Post).outerjoin(Pick).filter(Post.is_live==True).order_by(Pick.create_time.desc(),Post.create_time.desc())[start_post:end_post]
+    elif sort_id == '3':
+        posts = Post.query.order_by(Post.create_time.desc()).filter_by(is_live=True)[start_post:end_post]
+    boards = BoardModel.query.filter_by(is_live=True).all()
+    content = {
+        'end_page': end_page,
+        'web_pages': web_page,
+        'page': page,
+        'url': 'cms.cms_posts_page',
+        'posts': posts,
+        'boards': boards,
+        'sort':sort_id
+    }
+    return flask.render_template('cms/cms_posts.html', **content)
+
+
+# 帖子操作：加精和移除
+@bp.route('/cms_post_operate/',methods=['GET','POST'])
+def cms_post_operate():
+    if flask.request.method == 'GET':
+        post_id = flask.request.args.get('id')
+        if not post_id:
+            return xt_json.json_params_error('数据错误!')
+        post = Post.query.get(post_id)
+        post.is_live = False
+        db.session.commit()
+        return xt_json.json_result_ok('移除成功!')
+    else:
+        post_id = flask.request.form.get('id')
+        if not post_id:
+            return xt_json.json_params_error('数据错误!')
+        post = Post.query.get(post_id)
+        if post.pick:
+            db.session.delete(post.pick)
+            db.session.commit()
+            return xt_json.json_result_ok('取消加精成功!')
+        else:
+            pick = Pick()
+            post.pick = pick
+            db.session.commit()
+            return xt_json.json_result_ok('加精成功!')
+
 # CMS用户管理界面
 @bp.route('/cms_user_manager/')
 @login_required
 @prove_power_super_admin
 def cms_user_manager():
-    cms_users = CMSUser.query.all()
+    return cms_user_manager_page(1)
+
+@bp.route('/cms_user_manager/<int:page>')
+@login_required
+@prove_power_super_admin
+def cms_user_manager_page(page):
     cms_user = flask.g.cms_user
+    tablename = CMSUser
+    start_post, end_post, end_page, web_page = xt_fy.paging(5, tablename, page)
+    cms_users = CMSUser.query[start_post:end_post]
     content = {
-        'cms_users':cms_users,
-        'cmsUser':cms_user
+        'end_page': end_page,
+        'web_pages': web_page,
+        'page': page,
+        'url': 'cms.cms_user_manager_page',
+        'cms_users': cms_users,
+        'cmsUser': cms_user
     }
     return flask.render_template('cms/cms_user_manager.html',**content)
 
@@ -268,19 +353,57 @@ def add_edit_cms_user():
 @bp.route('/front_user_manage/')
 @login_required
 def front_user_manage():
+    return front_user_manage_page(1)
+
+@bp.route('/front_user_manage/<int:page>')
+@login_required
+def front_user_manage_page(page):
     index = flask.request.args.get('sort')
+    tablename = FrontUser
+    start_post, end_post, end_page, web_page = xt_fy.paging(5, tablename, page)
     if not index:
-        front_users = FrontUser.query.all()
-        return flask.render_template('cms/front_user_manage.html',front_users=front_users)
+        front_users = FrontUser.query[start_post:end_post]
+        content = {
+            'end_page': end_page,
+            'web_pages': web_page,
+            'page': page,
+            'url': 'cms.front_user_manage',
+            'front_users':front_users
+        }
+        return flask.render_template('cms/front_user_manage.html', **content)
     if index == '1':
-        front_users = FrontUser.query.order_by(FrontUser.create_time.desc()).all()
-        return flask.render_template('cms/front_user_manage.html',front_users=front_users,sort='1')
+        front_users = FrontUser.query.order_by(FrontUser.create_time.desc())[start_post:end_post]
+        content = {
+            'end_page': end_page,
+            'web_pages': web_page,
+            'page': page,
+            'url': 'cms.front_user_manage',
+            'front_users':front_users,
+            'sort':'1'
+        }
+        return flask.render_template('cms/front_user_manage.html', **content)
     if index == '2':
-        front_users = FrontUser.query.all()
-        return flask.render_template('cms/front_user_manage.html',front_users=front_users,sort='2')
+        front_users = FrontUser.query[start_post:end_post]
+        content = {
+            'end_page': end_page,
+            'web_pages': web_page,
+            'page': page,
+            'url': 'cms.front_user_manage',
+            'front_users':front_users,
+            'sort':'2'
+        }
+        return flask.render_template('cms/front_user_manage.html', **content)
     if index == '3':
-        front_users = FrontUser.query.order_by(FrontUser.id.desc()).all()
-        return flask.render_template('cms/front_user_manage.html',front_users=front_users,sort='3')
+        front_users = FrontUser.query.order_by(FrontUser.id.desc())[start_post:end_post]
+        content = {
+            'end_page': end_page,
+            'web_pages': web_page,
+            'page': page,
+            'url': 'cms.front_user_manage',
+            'front_users':front_users,
+            'sort':'3'
+        }
+        return flask.render_template('cms/front_user_manage.html', **content)
     return flask.abort(404)
 
 # 编辑前台用户管理界面
@@ -292,11 +415,26 @@ def edit_front_user(id):
         return flask.render_template('cms/edit_front_user.html',front_user=front_user)
 
 # 板块管理
+
 @bp.route('/board/')
 @login_required
 def cms_board():
-    boards = BoardModel.query.filter_by(is_live=True).all()
-    return flask.render_template('cms/board.html',boards=boards)
+    return cms_board_page(1)
+
+@bp.route('/board/<int:page>')
+@login_required
+def cms_board_page(page):
+    tablename = BoardModel
+    start_post, end_post, end_page, web_page = xt_fy.paging(5,tablename, page)
+    boards = BoardModel.query.filter_by(is_live=True)[start_post:end_post]
+    content = {
+        'boards': boards,
+        'end_page': end_page,
+        'web_pages': web_page,
+        'page': page,
+        'url':'cms.cms_board_page'
+    }
+    return flask.render_template('cms/board.html',**content)
 
 # 禁用前台用户
 @bp.route('/disable/',methods=['POST'])

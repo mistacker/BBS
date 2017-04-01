@@ -9,15 +9,31 @@ from constants import AccessKey,SecretKey
 from qiniu import Auth
 from forms.front_forms import Front_add_post_form
 from exts import db
-from utils import xt_json
+from utils import xt_json,xt_fy
 
 bp = Blueprint('front_post',__name__)
 
 # 首页
 @bp.route('/')
 def index():
+    return list(1)
+
+# 分页
+@bp.route('/list/<int:page>')
+def list(page):
+    tablename = public_models.Post
+    start_post,end_post,end_page,web_page = xt_fy.paging(10,tablename,page)
     boards = public_models.BoardModel.query.filter_by(is_live=True).all()
-    return flask.render_template('front/front_index.html',boards=boards)
+    posts = public_models.Post.query.filter_by(is_live=True).order_by(public_models.Post.create_time.desc())[start_post:end_post]
+    content = {
+        'boards':boards,
+        'posts':posts,
+        'end_page':end_page,
+        'web_pages':web_page,
+        'page':page,
+        'url':'front_post.list'
+    }
+    return flask.render_template('front/front_index.html',**content)
 
 # 发表新帖子
 @bp.route('/add_post/',methods=['GET','POST'])
@@ -44,6 +60,14 @@ def add_post():
             return xt_json.json_result_ok('恭喜 帖子发表成功!')
         else:
             return xt_json.json_params_error(form.get_error())
+
+# 帖子详情界面
+@bp.route('/post_detail/<int:id>')
+def post_detail(id):
+    if not id:
+        return flask.abort(404)
+    post = public_models.Post.query.get(id)
+    return flask.render_template('front/post_detail.html',post=post)
 
 # 获取七牛token
 @bp.route('/get_token/')

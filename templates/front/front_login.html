@@ -44,7 +44,7 @@
             <input type="text" class="form-control" name="captcha" placeholder="图形验证码">
 
             <span class="input-group-addon">
-                <img src="{{ url_for('front_accent.get_yzm') }}" class="yzm btn">
+                <img src="{{ url_for('front_accent.get_yzm',time=5*60) }}" class="yzm btn">
             </span>
         </div>
     </div>

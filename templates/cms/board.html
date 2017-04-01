@@ -126,9 +126,10 @@ $(function(){
         <td>{{ board.name }}</td>
         <td>{{ board.cms_user.username }}</td>
         <td>{{ board.create_time }}</td>
-        <td>未实现</td>
+        <td>{{ board.posts | count }}</td>
         <td><button class='edit_btn btn btn-xs btn-primary' info_name="{{ board.name }}" info_id="{{ board.id }}">编辑</button>&nbsp;&nbsp;<button class='del_btn btn btn-xs btn-danger' info_id="{{ board.id }}">删除</button></td>
     </tr>
     {% endfor %}
 </table>
+{% include 'common/common_paging.html' %}
 {% endblock %}

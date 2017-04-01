@@ -104,7 +104,7 @@ $(function(){
     </tr>
     <tr>
         <td><input type="text" name="captcha" placeholder="验证码" class="form-control"></td>
-        <td><img src="{{ url_for('front_accent.get_yzm') }}" class="yzm btn" style="border-width: 1px;border-color: pink"></td>
+        <td><img src="{{ url_for('front_accent.get_yzm',time=5*60) }}" class="yzm btn" style="border-width: 1px;border-color: pink"></td>
     </tr>
     <tr>
         <td colspan="2"><button class="btn btn-warning btn-block">立即注册</button></td>

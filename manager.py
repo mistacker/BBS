@@ -5,6 +5,7 @@ from flask_migrate import Migrate,MigrateCommand
 from flask_script import Manager
 from models import cms_models,front_models,public_models
 from demo19_1 import app
+import time
 
 manager = Manager(app)
 migrate = Migrate(app,db)
@@ -84,6 +85,22 @@ def get_all_power_infos(email):
         print 'sorry not find this cms_user'
         return
     print cms_user.get_all_power_info()
+    return
+
+# 添加很多帖子用来测试
+@manager.command
+def create_posts():
+    board = public_models.BoardModel.query.filter_by(name='PHP',is_live=True).first()
+    front_user = front_models.FrontUser.query.filter_by(username='python',is_live=True).first()
+    for i in range(1,101):
+        post = public_models.Post(title=('这是标题%d'%i),content=('这是内容%d'%i))
+        post.front_user = front_user
+        post.board = board
+        db.session.add(post)
+        db.session.commit()
+        print '%d finish'%i
+        time.sleep(2)
+    print 'success'
     return
 
 if __name__ == '__main__':

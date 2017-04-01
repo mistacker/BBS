@@ -77,7 +77,7 @@
         <tr>
         <td>{{ front_user.username }}</td>
         <td>{{ front_user.create_time }}</td>
-        <td>4</td>
+        <td>{{ front_user.posts | count }}</td>
         <td>10</td>
         <td></td>
         <td>{% if front_user.is_live %}<span class="label label-success">可用</span>{% else %}<span class="label label-danger">禁用</span>{% endif %}</td>
@@ -85,4 +85,5 @@
     </tr>
     {% endfor %}
 </table>
+{% include 'common/common_paging.html' %}
 {% endblock %}

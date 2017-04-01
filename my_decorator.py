@@ -5,6 +5,7 @@ import constants
 from functools import wraps
 from models.cms_models import CMSUser,User_power
 from utils import xt_json
+import flask
 
 # cms用户登录装饰器
 def login_required(func):
@@ -41,5 +42,5 @@ def front_login_required(func):
         if session.get(constants.FRONT_USER_TEL):
             return func(*args,**kwargs)
         else:
-            abort(401)
+            return flask.redirect(flask.url_for('front_accent.login'))
     return wapper

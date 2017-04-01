@@ -1,0 +1,72 @@
+{% extends 'front/front_base.html' %}
+{% block title %}
+{{ post.title }}
+{% endblock %}
+{% block head %}
+<link rel="stylesheet" href="{{ urlFor('front/css/post_detail.css') }}">
+{% endblock %}
+{% block body %}
+<div class="container_wrap">
+    <div class="left-container">
+        <div class="post-container">
+            <div class="post-container-inner">
+                <div class="post-top">
+                    <h2>{{ post.title }}</h2>
+                    <p class="post-info">
+                        <span>发表时间：{{ post.create_time }}</span>
+                        <span>作者：{{ post.front_user.username }}</span>
+                        <span>所属板块：{{ post.board.name|default('无板块') }}</span>
+                        <span class="comment-count">评论数：10</span>
+                        <span class="read-count">阅读数：{{ post.read_count|default(0) }}</span>
+                    </p>
+                </div>
+                <div class="post-content">
+                    {{ post.content|safe }}
+                </div>
+                <div class="star-group">
+                    <button class="btn btn-info btn-xs" id="star-btn" data-post-id="{{ post.id }}">点赞</button>
+                </div>
+            </div>
+            <div class="comment-btn-group">
+                <a href="#" class="btn btn-primary">发表评论</a>
+            </div>
+        </div>
+        <div class="comment-list-group">
+            <div class="comment-list-group-inner">
+                <div class="comment-title">
+                    <p>评论列表</p>
+                </div>
+                <ul class="comment-list">
+                    <li>
+                        <div class="comment-img">
+                            <a href="#"><img class="user-head" src="{{ urlFor('images/logo.jpg') }}" alt=""></a>
+                        </div>
+                        <div class="comment-content">
+                            <p class="author-info">
+                                <span>评论作者名字</span>
+                                <span>评论创建时间</span>
+                            </p>
+                            <p class="comment-txt">评论内容</p>
+                            <div class="comment-btn">
+                                <a href="#" class="reply-btn">回复</a>
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="right-container">
+        <div class="author-group">
+            <div class="avatar-group">
+                <a href="#"><img src="{{ url_for('static',filename='images/logo.jpg') }}" alt="" class="avatar-img"></a>
+            </div>
+            <p class="username">{{ post.front_user.username }}</p>
+            <p class="txt">{{ post.front_user.bbs_points }}积分</p>
+            <div class="btn-box">
+                <a href="#" class="btn btn-warning">Ta的主页</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

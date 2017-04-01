@@ -20,7 +20,7 @@ class Form_img_captcha(Form_error):
         if check_captcha(CAPTCHA, captcha):
             return True
         else:
-            raise ValidationError(message=u'验证码不正确!')
+            raise ValidationError(message=u'验证码过期或者输入不正确!')
 
 class Front_user_regist_form(Form_img_captcha):
     telephone = StringField(validators=[Regexp('^[1][358][0-9]{9}$',message=u'手机号码不符合规矩')])

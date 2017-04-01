@@ -28,6 +28,14 @@ class Post(Base):
 
     board_id = db.Column(db.Integer,db.ForeignKey('board.id'))
     front_user_id = db.Column(db.String(100),db.ForeignKey('front_user.id'))
+    pick_id = db.Column(db.Integer,db.ForeignKey('pick.id'))
 
     board = db.relationship('BoardModel',backref='posts')
     front_user = db.relationship('FrontUser',backref='posts')
+    pick = db.relationship('Pick',backref='post',uselist=False)
+
+# 精品表
+class Pick(Base):
+    __tablename__ = 'pick'
+    id = db.Column(db.Integer,primary_key=True)
+    create_time = db.Column(db.DateTime,default=datetime.now())
