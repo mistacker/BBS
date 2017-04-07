@@ -1,0 +1,174 @@
+{% extends 'front/front_base.html' %}
+{% block title %}
+评论页面
+{% endblock %}
+{% block head %}
+<link rel="stylesheet" href="{{ urlFor('common/dist/css/wangEditor.min.css') }}">
+<script src="{{ urlFor('common/dist/js/wangEditor.min.js') }}"></script>
+<script src="{{ urlFor('common/utils/xt_qiniu.js') }}"></script>
+<script>
+$(function() {
+    var edit = new wangEditor('ta');
+    edit.create();
+    window.edit = edit;
+});
+// 上传到七牛代码
+$(function(){
+    var progress = $('.progress');
+    var progress_bar = progress.children(0);
+    var toServer_btn = $('#toServer');
+    var args = {
+        'btn':'toServer',                                      // 点击的按钮
+        'get_token':'/get_token/',                             // 请求的七牛token
+        'domain':'http://ohslbq04h.bkt.clouddn.com',           //七牛空间的域名
+        //'uploadProgress':function(up, file){
+            // 显示进度条
+        //    window.edit.showUploadProgress(file.percent);
+        //},
+        'uploadProgress':function(up,file){
+            progress.css('display','block');
+            progress_bar.attr('aria-valuenow',file.percent+'%');
+            progress_bar.css('width',file.percent+'%');
+            progress_bar.text(file.percent+'%');
+            toServer_btn.button('loading');
+        },
+        'fileUploaded':function(up,file,info,sourcelink){      // 文件上传完成后调用的方法
+            if(file.type.indexOf('video')>=0){
+                var tmp = "<video width='560' height='300' controls><source src="+sourcelink+"></video>";
+                // window.edit.$txt.append(tmp);
+                edit.command(null, 'insertHtml', tmp);
+            }else{
+                source_link = sourcelink+'?imageView2/2/w/200/h/200/q/75|imageslim';
+                tmp = "<img src="+source_link+">";
+                edit.command(null, 'insertHtml', tmp);
+                // window.edit.$txt.append(tmp);
+            }
+        },
+        //'UploadComplete':function () {
+            // 隐藏进度条
+        //    edit.hideUploadProgress();
+        //}
+        'uploadComplete':function(){
+            progress_bar.attr('aria-valuenow','0%');
+            progress_bar.css('width','0%');
+            progress_bar.text('0%');
+            progress.css('display','none');
+            toServer_btn.button('reset');
+        }
+    };
+    qn.setup(args);         // 执行七牛代码
+});
+$(function(){
+    $('.mybtn').click(function(event){
+        event.preventDefault();
+        var toServer_btn = $('#toServer');
+        if(toServer_btn.text()!='上传图片或视频'){
+            xtalert.alertErrorToast('正在上传图片或视频，请稍后...');
+            $('.yzm').click();
+            return
+        }
+        var comment_id = $(this).attr('comment');
+        var post_id = $(this).attr('info');
+        var content = edit.$txt.html();
+        if(!content){
+                xtalert.alertError('内容不能为空!');
+                return
+        }
+        if(!comment_id){
+            xtajax.post({
+                'url':'/add_comment/',
+                'data':{
+                    'id':post_id,
+                    'content':content
+                },
+                'success':function(data){
+                    if(data['code']==200){
+                        xtalert.alertSuccessToast(data['message']);
+                        setTimeout(function(){
+                            window.location = '/post_detail/'+post_id;
+                        },500);
+                    }else{
+                        xtalert.alertError(data['message']);
+                    }
+                },
+                'fail':function(error){
+                    xtalert.alertNetworkError()
+                }
+            })
+        }else{
+            xtajax.post({
+                'url':'/add_second_comment/',
+                'data':{
+                    'id':post_id,
+                    'content':content,
+                    'comment_id':comment_id
+                },
+                'success':function(data){
+                    if(data['code']==200){
+                        xtalert.alertSuccessToast(data['message']);
+                        setTimeout(function(){
+                            window.location = '/post_detail/'+post_id;
+                        },500);
+                    }else{
+                        xtalert.alertError(data['message']);
+                    }
+                },
+                'fail':function(error){
+                    xtalert.alertNetworkError()
+                }
+            })
+        }
+    })
+})
+</script>
+<style>
+.container{
+    width: 990px;
+    background: #fff;
+    margin: 10px auto;
+    border: 1px solid #e6e6e6;
+}
+.container-inner{
+    background: #fff;
+    padding: 30px;
+    position: relative;
+}
+.post-title{
+    padding:20px 0;
+}
+.origin-comment-group{
+    padding-bottom: 20px;
+}
+#editor{
+    height: 300px;
+}
+#ta{
+    height: 400px;
+}
+.post-title {
+    padding: 15px 0;
+}
+</style>
+{% endblock %}
+{% block container %}
+    <div class="container-inner">
+        <div class="post-title">
+            <a href="{{ url_for('front_post.post_detail',id=post.id) }}">{{ post.title }}</a>
+        </div>
+        {% if comment %}
+        <div class="post-title">
+            <p>回复：{{ comment.front_user.username }}</p>
+            <p>{{ comment.comtent|safe }}</p>
+        </div>
+        {% include 'common/common_text_edit.html' %}
+        <div class="botton-group">
+            <button class="mybtn btn btn-warning" info="{{ post.id }}" comment="{{ comment.id }}">提交评论</button>
+        </div>
+        {% else %}
+        {% include 'common/common_text_edit.html' %}
+        <div class="botton-group">
+            <button class="mybtn btn btn-warning" info="{{ post.id }}">提交评论</button>
+        </div>
+        {% endif %}
+    </div>
+{% endblock %}

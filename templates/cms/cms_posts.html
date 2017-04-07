@@ -100,8 +100,12 @@ $(function(){
     });
     $('.sel_left').change(function(){
         var val = $(this).val();
-        var oldSrc = window.location.href.split('?')[0];
-        newSrc = oldSrc+'?sort='+val;
+        newSrc = xtparam.setParam(window.location.href,'sort',val);
+        window.location = newSrc;
+    });
+    $('.sel_right').change(function(){
+        var val = $(this).val();
+        newSrc = xtparam.setParam(window.location.href,'board_id',val);
         window.location = newSrc;
     });
 })
@@ -121,9 +125,9 @@ $(function(){
     <div class="add_admin right">
         <b>过滤板块：</b>
         <select class="sel_right sort_select">
-            <option value="0">所有</option>
+            <option value="0" {% if board_id == '0' %}selected{% endif %}>所有</option>
             {% for board in boards %}
-                <option value="{{ board.id }}">{{ board.name }}</option>
+                <option value="{{ board.id }}" {% if board_id == (board.id|string) %}selected{% endif %}>{{ board.name }}</option>
             {% endfor %}
         </select>
     </div>
@@ -153,5 +157,6 @@ $(function(){
     </tr>
     {% endfor %}
 </table>
-{% include 'common/common_paging.html' %}
+    {% include('common/common_paging.html') %}
+
 {% endblock %}

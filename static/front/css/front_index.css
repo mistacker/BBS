@@ -15,7 +15,11 @@
 }
 .top-group li a:hover{
     text-decoration: none;
-    color: #ff6f3d;;
+    color: #ff6f3d;
+}
+.select{
+    text-decoration: none;
+    color: #ff6f3d;
 }
 .top-group li.current a{
     color: #ff6f3d;

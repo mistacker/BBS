@@ -4,6 +4,32 @@
 {% endblock %}
 {% block head %}
 <link rel="stylesheet" href="{{ urlFor('front/css/post_detail.css') }}">
+<script>
+$(function(){
+    $('.btn_laud').click(function(event){
+        event.preventDefault();
+        var post_id = $(this).attr('info');
+        xtajax.post({
+            'url':'/laud/',
+            'data':{
+                'post_id':post_id
+            },
+            'success':function(data){
+                if(data['code']==200){
+                    setTimeout(function(){
+                        window.location.reload()
+                    },500)
+                }else{
+                    xtalert.alertError(data['message']);
+                }
+            },
+            'fail':function(error){
+                xtalert.alertNetworkError()
+            }
+        })
+    });
+})
+</script>
 {% endblock %}
 {% block body %}
 <div class="container_wrap">
@@ -16,7 +42,7 @@
                         <span>发表时间：{{ post.create_time }}</span>
                         <span>作者：{{ post.front_user.username }}</span>
                         <span>所属板块：{{ post.board.name|default('无板块') }}</span>
-                        <span class="comment-count">评论数：10</span>
+                        <span class="comment-count">评论数：{{ post.comments | count }}</span>
                         <span class="read-count">阅读数：{{ post.read_count|default(0) }}</span>
                     </p>
                 </div>
@@ -24,12 +50,24 @@
                     {{ post.content|safe }}
                 </div>
                 <div class="star-group">
-                    <button class="btn btn-info btn-xs" id="star-btn" data-post-id="{{ post.id }}">点赞</button>
+                    {% if front_user and front_user.id in laud_front_user_ids %}
+                    <button class="btn_laud btn btn-info btn-xs" id="star-btn" info="{{ post.id }}">已赞</button>
+                    {% else %}
+                    <button class="btn_laud btn btn-info btn-xs" id="star-btn" info="{{ post.id }}">点赞</button>
+                    {% endif %}
+                    {% if post.lauds %}
+                    {% for laud in post.lauds %}
+                        <img src="{{ urlFor('images/logo.jpg') }}">
+                    {% endfor %}
+                    {% endif %}
                 </div>
             </div>
             <div class="comment-btn-group">
-                <a href="#" class="btn btn-primary">发表评论</a>
+                <a href="{{ url_for('front_post.comment',id=post.id) }}" class="btn btn-primary">发表评论</a>
             </div>
+        </div>
+        <div class="all_count">
+            共{{ post.comments|count }}篇评论
         </div>
         <div class="comment-list-group">
             <div class="comment-list-group-inner">
@@ -37,21 +75,31 @@
                     <p>评论列表</p>
                 </div>
                 <ul class="comment-list">
-                    <li>
-                        <div class="comment-img">
-                            <a href="#"><img class="user-head" src="{{ urlFor('images/logo.jpg') }}" alt=""></a>
-                        </div>
-                        <div class="comment-content">
-                            <p class="author-info">
-                                <span>评论作者名字</span>
-                                <span>评论创建时间</span>
-                            </p>
-                            <p class="comment-txt">评论内容</p>
-                            <div class="comment-btn">
-                                <a href="#" class="reply-btn">回复</a>
+                    {% for comment in post.comments %}
+                        <li>
+                            <div class="comment-img">
+                                <a href="#"><img class="user-head" src="{{ urlFor('images/logo.jpg') }}" alt=""></a>
                             </div>
-                        </div>
-                    </li>
+                            <div class="comment-content">
+                                <p class="author-info">
+                                    <span>{{ comment.front_user.username }}</span>
+                                    <span>{{ comment.create_time }}</span>
+                                </p>
+                                {% if comment.origin_comment %}
+                                    <div class="origin-comment-group">
+                                        <blockquote>
+                                            {{ comment.origin_comment.front_user.username}} 发表于 {{ comment.origin_comment.create_time }}
+                                            <p>{{ comment.origin_comment.comtent|safe|truncate }}</p>
+                                        </blockquote>
+                                    </div>
+                                {% endif %}
+                                <p class="comment-txt">{{ comment.comtent|safe }}</p>
+                                <div class="comment-btn">
+                                    <a href="{{ url_for('front_post.add_second_comment',post_id=post.id,comment_id=comment.id) }}" class="reply-btn">回复</a>
+                                </div>
+                            </div>
+                        </li>
+                    {% endfor %}
                 </ul>
             </div>
         </div>

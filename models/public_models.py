@@ -39,3 +39,30 @@ class Pick(Base):
     __tablename__ = 'pick'
     id = db.Column(db.Integer,primary_key=True)
     create_time = db.Column(db.DateTime,default=datetime.now())
+
+# 评论
+class Comment(Base):
+    __tablename__ = 'comment'
+    id = db.Column(db.Integer,primary_key=True)
+    comtent = db.Column(db.Text,nullable=False)
+    create_time = db.Column(db.DateTime,default=datetime.now())
+    is_live = db.Column(db.Boolean,default=True)
+
+    front_user_id = db.Column(db.String(100),db.ForeignKey('front_user.id'))
+    post_id = db.Column(db.Integer,db.ForeignKey('post.id'))
+    origin_comment_id = db.Column(db.Integer,db.ForeignKey('comment.id'))
+
+    front_user = db.relationship('FrontUser',backref='comments')
+    post = db.relationship('Post',backref='comments')
+    origin_comment = db.relationship('Comment',backref='comments',remote_side=[id])
+
+# 点赞
+class Laud(Base):
+    __tablename__ = 'laud'
+    id = db.Column(db.Integer,primary_key=True)
+    create_time = db.Column(db.DateTime,default=datetime.now())
+    front_user_id = db.Column(db.String(100),db.ForeignKey('front_user.id'))
+    post_id = db.Column(db.Integer,db.ForeignKey('post.id'))
+
+    front_user = db.relationship('FrontUser',backref='lauds')
+    post = db.relationship('Post',backref='lauds')

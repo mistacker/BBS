@@ -41,3 +41,13 @@ class Front_add_post_form(Form_img_captcha):
     title = StringField(validators=[Length(min=3,max=100,message=u'标题字数在3到100个数之间')])
     board_id = IntegerField(validators=[InputRequired()])
     content = StringField(validators=[InputRequired(u'内容不能为空')])
+
+class Front_comment_form(Form_error):
+    id = IntegerField(validators=[InputRequired(message=u'帖子id不能为空')])
+    content = StringField(validators=[InputRequired(message=u'评论内容不能为空')])
+
+class Front_second_comment_form(Front_comment_form):
+    comment_id = IntegerField(validators=[InputRequired(message=u'评论的id不能为空')])
+
+class Front_laud_form(Form_error):
+    post_id = IntegerField(validators=[InputRequired(message=u'帖子id不能为空')])

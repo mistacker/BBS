@@ -9,7 +9,7 @@
 {% block container %}
     <div class="lg-container">
         <ul class="top-group">
-            <li>
+            <li class="current">
                 <a href="#">
                     <div class="icon-group"><i class="iconfont icon-zuixin"></i></div>
                     <p class="block-title">最新帖子</p>
@@ -53,7 +53,7 @@
                             <div class="auth-msg">
                                 <a href="#" class="user_name">{{ post.front_user.username }}</a>
                                 <span class="time">{{ post.create_time }}</span>
-                                <span class="comment-count">评论：10</span>
+                                <span class="comment-count">评论：{{ post.comments|count }}</span>
                                 <span class="read-count">阅读：10</span>
                             </div>
                         </div>

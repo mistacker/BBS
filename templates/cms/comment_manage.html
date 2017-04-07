@@ -1,0 +1,195 @@
+{% extends 'cms/base_cms_index.html' %}
+{% block title %}
+评论管理
+{% endblock %}
+{% block head %}
+<style>
+.top_box{
+    background-color:darkseagreen;
+    overflow: hidden;
+    border-radius: 3px;
+}
+.add_admin{
+    margin: 5px 10px;
+}
+.sort_select{
+    border: 1px solid grey;
+    background: none;
+    color: saddlebrown;
+    border-radius: 2px;
+    padding-bottom: 3px;
+}
+body{
+    overflow: scroll;
+}
+.first_table tr td:nth-of-type(1){
+    width: 20%;
+}
+.first_table tr td:nth-of-type(2){
+    width: 30%;
+}
+.other_first_table tr td:nth-of-type(1){
+    width: 30%;
+}
+.second_table tr td:nth-of-type(1){
+    width: 75%;
+}
+.second_table tr td:nth-of-type(2){
+    width: 15%;
+}
+.second_table tr td:nth-of-type(3){
+    width: 10%;
+}
+</style>
+<script>
+$(function(){
+    $('.sort_select').change(function(){
+        var val = $(this).val();
+        var oldSrc = window.location.href.split('?')[0];
+        newSrc = oldSrc+'?sort='+val;
+        window.location = newSrc;
+    })
+});
+$(function(){
+    $('.mybtn').click(function(event){
+        event.preventDefault();
+        var comment_id = $(this).attr('info');
+        xtajax.get({
+            'url':'/comment_manage_opt/',
+            'data':{
+                'id':comment_id
+            },
+            'success':function(data){
+                if(data['code']==200){
+                    xtalert.alertSuccessToast(data['message']);
+                    setTimeout(function(){
+                        window.location.reload();
+                    },500)
+                }else{
+                    xtalert.alertError(data['message']);
+                }
+            },
+            'fail':function(error){
+                xtalert.alertNetworkError()
+            }
+        })
+    });
+});
+$(function(){
+    $('.opt_btn').click(function(event){
+        event.preventDefault();
+        var comment_id = $(this).attr('info');
+        xtajax.post({
+            'url':'/comment_manage_opt/',
+            'data':{
+                'id':comment_id
+            },
+            'success':function(data){
+                if(data['code']==200){
+                    xtalert.alertSuccessToast(data['message']);
+                    setTimeout(function(){
+                        window.location.reload();
+                    },500)
+                }else{
+                    xtalert.alertError(data['message']);
+                }
+            },
+            'fail':function(error){
+                xtalert.alertNetworkError()
+            }
+        })
+    });
+})
+</script>
+{% endblock %}
+{% block content %}
+<h1>评论管理界面：</h1>
+<div class='top_box'>
+    <div class="add_admin">
+        <b>分类：</b>
+        <select class="sort_select">
+            <option value="1" {% if sort=="1" %}selected{% endif %}>根据用户分类</option>
+            <option value="2" {% if sort=="2" %}selected{% endif %}>按帖子分类</option>
+        </select>
+    </div>
+</div>
+{% if temp == 1 %}<!--根据用户进行分类-->
+<table class="other_first_table table table-bordered">
+<thead>
+        <th>前台用户</th>
+        <th>详情</th>
+    </thead>
+    {% for front_user in front_users %}
+    <tr>
+        <td>{{ front_user.username }}</td>
+        <td>
+            <table class="second_table table ">
+                <thead>
+                    <th>评论内容</th>
+                    <th>评论时间</th>
+                    <th>操作</th>
+                </thead>
+                {% for comment in front_user.comments %}
+                    <tr>
+                        <td>{{ comment.comtent|safe }}</td>
+                        <td>{{ comment.create_time }}</td>
+                        <td><span class="mybtn btn btn-xs btn-danger" info="{{ comment.id }}">删除</span>&nbsp;{% if comment.is_live %}<span class="opt_btn btn btn-xs btn-info" info="{{ comment.id }}">隐藏</span>{% else %}<span class="opt_btn btn btn-xs btn-primary" info="{{ comment.id }}">显示</span>{% endif %}</td>
+                    </tr>
+                    {% if comment.comments %}
+                        {% for child_comment in comment.comments %}
+                        <tr>
+                            <td>{{ child.comment.comtent|safe }}</td>
+                            <td>{{ child.comment.create_time }}</td>
+                            <td><span class="mybtn btn btn-xs btn-danger" info="{{ child_comment.id }}">删除</span>&nbsp;{% if child_comment.is_live %}<span class="opt_btn btn btn-xs btn-info" info="{{ comment.id }}">隐藏</span>{% else %}<span class="opt_btn btn btn-xs btn-primary" info="{{ comment.id }}">显示</span>{% endif %}</td>
+                        </tr>
+                        {% endfor %}
+                    {% endif %}
+                {% endfor %}
+            </table>
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+{% include 'common/common_paging.html' %}
+{% else %}    <!--end--> <!--根据帖子进行分类-->
+<table class="first_table table table-bordered">
+    <thead>
+        <th>帖子标题</th>
+        <th>帖子内容</th>
+        <th>详情</th>
+    </thead>
+    {% for post in posts %}
+    <tr>
+        <td>{{ post.title }}</td>
+        <td>{{ post.content|safe }}</td>
+        <td>
+            <table class="second_table table ">
+                <thead>
+                    <th>评论内容</th>
+                    <th>评论时间</th>
+                    <th>操作</th>
+                </thead>
+                {% for comment in post.comments %}
+                    <tr>
+                        <td>{{ comment.comtent|safe }}</td>
+                        <td>{{ comment.create_time }}</td>
+                        <td><span class="mybtn btn btn-xs btn-danger" info="{{ comment.id }}">删除</span>&nbsp;{% if comment.is_live %}<span class="opt_btn btn btn-xs btn-info" info="{{ comment.id }}">隐藏</span>{% else %}<span class="opt_btn btn btn-xs btn-primary" info="{{ comment.id }}">显示</span>{% endif %}</td>
+                    </tr>
+                {% if comment.comments %}
+                    {% for child_comment in comment.comments %}
+                    <tr>
+                        <td>{{ child.comment.comtent|safe }}</td>
+                        <td>{{ child.comment.create_time }}</td>
+                        <td><span class="mybtn btn btn-xs btn-danger" info="{{ child_comment.id }}">删除</span>&nbsp;{% if child_comment.is_live %}<span class="opt_btn btn btn-xs btn-info" info="{{ comment.id }}">隐藏</span>{% else %}<span class="opt_btn btn btn-xs btn-primary" info="{{ comment.id }}">显示</span>{% endif %}</td>
+                    </tr>
+                    {% endfor %}
+                {% endif %}
+                {% endfor %}
+            </table>
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+{% include 'common/common_paging.html' %}
+{% endif %}<!--end-->
+{% endblock %}

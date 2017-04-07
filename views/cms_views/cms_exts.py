@@ -6,7 +6,7 @@ from flask.views import MethodView
 from forms.cms_forms import CMS_user_login_form,Set_pwd_form,check_email_form,Set_email_form,Add_manager_form,Add_group_form
 from models.cms_models import db,CMSUser,CMSRole
 from models.front_models import FrontUser
-from models.public_models import BoardModel,Post,Pick
+from models.public_models import BoardModel,Post,Pick,Comment
 from constants import USER_SESSION_ID
 from my_decorator import login_required,prove_power_super_admin
 from utils import xt_json,xt_fy
@@ -145,11 +145,12 @@ def cms_posts_page(page):
     # 2. 按精品
     # 3. 按阅读量
     tablename = Post
-    start_post, end_post, end_page, web_page = xt_fy.paging(8, tablename, page)
+    board_id = flask.request.args.get('board_id')
     sort_id = flask.request.args.get('sort')
+    start_post, end_post, end_page, web_page = xt_fy.paging(8, tablename,board_id, page)
     posts = ''
-    if not sort_id:
-        posts = Post.query.filter_by(is_live=True)[start_post:end_post]
+    if not sort_id and not board_id:
+        posts = Post.query.filter_by(is_live=True).slice(start_post,end_post)
         boards = BoardModel.query.filter_by(is_live=True).all()
         content = {
             'end_page': end_page,
@@ -161,11 +162,23 @@ def cms_posts_page(page):
         }
         return flask.render_template('cms/cms_posts.html', **content)
     elif sort_id == '1':
-        posts = Post.query.order_by(Post.create_time).filter_by(is_live=True)[start_post:end_post]
+        if board_id == '0' or not board_id:
+            posts = Post.query.order_by(Post.create_time).filter_by(is_live=True).slice(start_post,end_post)
+        else:
+            posts = Post.query.order_by(Post.create_time).filter_by(is_live=True,board_id=board_id).slice(start_post,end_post)
     elif sort_id == '2':
-        posts = db.session.query(Post).outerjoin(Pick).filter(Post.is_live==True).order_by(Pick.create_time.desc(),Post.create_time.desc())[start_post:end_post]
+        if board_id == '0' or not board_id:
+            posts = db.session.query(Post).outerjoin(Pick).filter(Post.is_live==True).order_by(Pick.create_time.desc(),Post.create_time.desc()).slice(start_post,end_post)
+        else:
+            posts = db.session.query(Post).outerjoin(Pick).filter(Post.is_live==True,Post.board_id==board_id).order_by(Pick.create_time.desc(),Post.create_time.desc()).slice(start_post,end_post)
     elif sort_id == '3':
-        posts = Post.query.order_by(Post.create_time.desc()).filter_by(is_live=True)[start_post:end_post]
+        if board_id == '0' or not board_id:
+            posts = Post.query.order_by(Post.create_time.desc()).filter_by(is_live=True).slice(start_post,end_post)
+        else:
+            posts = Post.query.order_by(Post.create_time.desc()).filter_by(is_live=True, board_id=board_id).slice(start_post, end_post)
+    else:
+        if board_id != '0' and board_id:
+            posts = Post.query.order_by(Post.create_time).filter_by(is_live=True, board_id=board_id).slice(start_post,end_post)
     boards = BoardModel.query.filter_by(is_live=True).all()
     content = {
         'end_page': end_page,
@@ -174,7 +187,8 @@ def cms_posts_page(page):
         'url': 'cms.cms_posts_page',
         'posts': posts,
         'boards': boards,
-        'sort':sort_id
+        'sort':sort_id,
+        'board_id':board_id
     }
     return flask.render_template('cms/cms_posts.html', **content)
 
@@ -205,6 +219,70 @@ def cms_post_operate():
             db.session.commit()
             return xt_json.json_result_ok('加精成功!')
 
+# 评论管理
+@bp.route('/comment_manage/')
+@login_required
+def comment_manage():
+    return comment_manage_page(1)
+
+@bp.route('/comment_manage/<int:page>',methods=['GET'])
+@login_required
+def comment_manage_page(page):
+    sort = flask.request.args.get('sort')
+    if not sort or sort == '1':
+        start_post, end_post, end_page, web_page = xt_fy.paging(8,FrontUser,None,page)
+        front_users = FrontUser.query.slice(start_post,end_post)
+        content = {
+            'end_page': end_page,
+            'web_pages': web_page,
+            'page': page,
+            'url': 'cms.comment_manage_page',
+            'front_users':front_users,
+            'sort':'1',
+            'temp':1
+        }
+        return flask.render_template('cms/comment_manage.html',**content)
+    elif sort == '2':
+        start_post, end_post, end_page, web_page = xt_fy.paging(8, Post, None, page)
+        posts = Post.query.slice(start_post,end_post)
+        content = {
+            'end_page': end_page,
+            'web_pages': web_page,
+            'page': page,
+            'url': 'cms.comment_manage_page',
+            'posts':posts,
+            'sort':'2',
+            'temp':2
+        }
+        return flask.render_template('cms/comment_manage.html',**content)
+
+# 评论操作管理
+@bp.route('/comment_manage_opt/',methods=['GET','POST'])
+def comment_manage_opt():
+    if flask.request.method == 'GET':
+        try:
+            comment_id = flask.request.args.get('id')
+            comment = Comment.query.get(comment_id)
+            db.session.delete(comment)
+            db.session.commit()
+            return xt_json.json_result_ok('删除成功!')
+        except Exception as e:
+            print e
+            return xt_json.json_params_error('内部错误!')
+    else:
+        try:
+            comment_id = flask.request.form.get('id')
+            comment = Comment.query.get(comment_id)
+            if comment.is_live:
+                comment.is_live = False
+            else:
+                comment.is_live = True
+            db.session.commit()
+            return xt_json.json_result_ok('修改成功!')
+        except Exception as e:
+            print e
+            return xt_json.json_params_error('内部错误!')
+
 # CMS用户管理界面
 @bp.route('/cms_user_manager/')
 @login_required
@@ -218,7 +296,7 @@ def cms_user_manager():
 def cms_user_manager_page(page):
     cms_user = flask.g.cms_user
     tablename = CMSUser
-    start_post, end_post, end_page, web_page = xt_fy.paging(5, tablename, page)
+    start_post, end_post, end_page, web_page = xt_fy.paging(5, tablename,None, page)
     cms_users = CMSUser.query[start_post:end_post]
     content = {
         'end_page': end_page,
@@ -360,7 +438,7 @@ def front_user_manage():
 def front_user_manage_page(page):
     index = flask.request.args.get('sort')
     tablename = FrontUser
-    start_post, end_post, end_page, web_page = xt_fy.paging(5, tablename, page)
+    start_post, end_post, end_page, web_page = xt_fy.paging(5, tablename,None, page)
     if not index:
         front_users = FrontUser.query[start_post:end_post]
         content = {
@@ -425,7 +503,7 @@ def cms_board():
 @login_required
 def cms_board_page(page):
     tablename = BoardModel
-    start_post, end_post, end_page, web_page = xt_fy.paging(5,tablename, page)
+    start_post, end_post, end_page, web_page = xt_fy.paging(5,tablename,None, page)
     boards = BoardModel.query.filter_by(is_live=True)[start_post:end_post]
     content = {
         'boards': boards,
@@ -500,4 +578,3 @@ def cms_befor_request():
     if email:
         user = CMSUser.query.filter_by(email=email).first()
         flask.g.cms_user = user
-

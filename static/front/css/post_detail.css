@@ -7,7 +7,50 @@
     width: 728px;
     float: left;
 }
-
+.origin-comment-group blockquote{
+    margin: 10px 0;
+    padding: 20px;
+    border: 1px solid #f3f3f3;
+    line-height: 20px;
+    background: #fafafa;
+    font-size: 14px;
+}
+.star-group img {
+    border-radius: 50%;
+    width: 25px;
+    vertical-align: middle;
+}
+.avatar-group img {
+    width: 60px;
+    border-radius: 50%;
+}
+.all_count {
+    text-align: center;
+    font-size: 18px;
+    font-family: '黑体';
+    color: orangered;
+}
+.star-group {
+    margin-top: 18px;
+}
+.add_more {
+    text-align: center;
+    margin-top: 20px;
+}
+.add_more button{
+    width: 150px;
+}
+p.username {
+    font-weight: bold;
+    margin: 2px 0;
+}
+.author-group {
+    text-align: center;
+}
+p.txt {
+    margin-top: 8px;
+    margin-bottom: 12px;
+}
 .post-container{
     margin: 0 0 10px 0;
     background: #fff;

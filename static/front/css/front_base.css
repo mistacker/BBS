@@ -5,7 +5,15 @@ a, abbr, acronym, address, applet, article, aside, audio, b, big, blockquote, bo
     list-style: none;
     vertical-align: baseline;
 }
-
+p {
+    font-size: 15px;
+    margin-bottom: 18px;
+    word-spacing: 0px;
+    -webkit-margin-after: 1em;
+    -webkit-margin-start: 0px;
+    -webkit-margin-end: 0px;
+    line-height: 25px;
+}
 .form-control:focus {
   box-shadow: none;
   border-color: #ccc;
@@ -106,6 +114,14 @@ body{
 
 .title .title_name:hover{
     color: #ff6f3d;
+}
+
+a.dropdown-toggle img {
+    width: 18px;
+    margin-right: 3px;
+    vertical-align: middle;
+    margin-bottom: 2px;
+    border-radius: 50%;
 }
 
 .post-list-con .auth-msg{

@@ -49,7 +49,7 @@
                 </li>
 
                 <li class="nav-group post-manage"><a href="{{ url_for('cms.cms_posts') }}">帖子管理</a></li>
-                <li class="comments-manage"><a href="#">评论管理</a></li>
+                <li class="comments-manage"><a href="{{ url_for('cms.comment_manage') }}">评论管理</a></li>
                 <li class="board-manage"><a href="{{ url_for('cms.cms_board') }}">板块管理</a></li>
 
                 <li class="nav-group user-manage"><a href="{{ url_for('cms.front_user_manage') }}">用户管理</a></li>
