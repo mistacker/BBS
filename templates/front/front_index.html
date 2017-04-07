@@ -71,10 +71,16 @@
         <div class="add-post-group"><a href="{{ url_for('front_post.add_post') }}" class="btn btn-warning btn-block">发表新帖子</a></div>
         <div class="list-group">
             <span class="list-group-item header">板块</span>
-            {% for board in boards %}
-                <a href="{{ url_for('front_post.page_list',page=page,sort=sort,board=board.id) }}" class="list-group-item">
-                    {{ board.name }}
-                    <span class="badge">{{ board.posts|count }}</span>
+                <a href="{{ url_for('front_post.page_list',page=page,sort=sort,board=0) }}" {% if board==0 %}class="list-group-item a_select"{% else %}class="list-group-item"{% endif %}>
+                    所有板块
+                    <span class="badge">{{ web_posts_count }}</span>
+                </a>
+            {% for web_board in boards %}
+                <a href="{{ url_for('front_post.page_list',page=page,sort=sort,board=web_board.id) }}" {% if board==web_board.id %}class="list-group-item a_select"{% else %}class="list-group-item"{% endif %}>
+                    {{ web_board.name }}
+                    <span class="badge">
+                        {{ web_board.posts|get_count }}
+                    </span>
                 </a>
             {% endfor %}
         </div>

@@ -27,6 +27,14 @@ def cms_errorHanderler(error):
 def cms_errorHanderler(error):
     return flask.render_template('cms/401.html'),401
 
+# 自定义过滤器获取板块帖子数
+@app.template_filter('get_count')
+def get_count(posts):
+    count = 0
+    for post in posts:
+        if post.is_live:
+            count+=1
+    return count
 
 if __name__ == '__main__':
     app.run(host='127.0.0.1', port=80, debug=True)

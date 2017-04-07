@@ -64,7 +64,8 @@ def page_list(page,sort,board):
             all_posts_count = db.session.query(public_models.Post).filter_by(is_live=True,board_id=board).outerjoin(public_models.Comment).group_by(public_models.Post.id).count()
             start_post, end_post, end_page, web_page = xt_fy.paging(10, all_posts_count, None, page)
             posts = db.session.query(public_models.Post).filter_by(is_live=True,board_id=board).outerjoin(public_models.Comment).group_by(public_models.Post.id).order_by(db.func.count(public_models.Post.comments).desc(), public_models.Post.create_time.desc()).slice(start_post,end_post)
-
+    # 所有的帖子数
+    web_posts_count = public_models.Post.query.filter_by(is_live=True).count()
     content = {
         'boards':boards,
         'posts':posts,
@@ -74,7 +75,8 @@ def page_list(page,sort,board):
         'url':'front_post.page_list',
         'sort':sort,
         'board':board,
-        'all_posts_count':all_posts_count
+        'all_posts_count':all_posts_count,
+        'web_posts_count':web_posts_count
     }
     return flask.render_template('front/front_index.html',**content)
 
