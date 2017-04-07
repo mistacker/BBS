@@ -17,26 +17,74 @@ bp = Blueprint('front_post',__name__)
 # 首页
 @bp.route('/')
 def index():
-    return page_list(1)
+    return page_list(1,1,0)
 
 # 分页
-@bp.route('/page_list/<int:page>')
-def page_list(page):
+@bp.route('/page_list/<int:page>/<int:sort>/<int:board>')
+def page_list(page,sort,board):
     tablename = public_models.Post
-    start_post,end_post,end_page,web_page = xt_fy.paging(10,tablename,None,page)
     boards = public_models.BoardModel.query.filter_by(is_live=True).all()
-    posts = public_models.Post.query.filter_by(is_live=True).order_by(public_models.Post.create_time.desc()).slice(start_post,end_post)
+    temp_board = 0
+    posts = ''
+    end_page = ''
+    web_page = ''
+    if sort == 1:  # 最新帖子
+        if board == temp_board:
+            all_posts_count = public_models.Post.query.filter_by(is_live=True).count()
+            start_post, end_post, end_page, web_page = xt_fy.paging(10, all_posts_count, None, page)
+            posts = public_models.Post.query.filter_by(is_live=True).order_by(public_models.Post.create_time.desc()).slice(start_post,end_post)
+        else:
+            all_posts_count = public_models.Post.query.filter_by(is_live=True,board_id=board).count()
+            start_post, end_post, end_page, web_page = xt_fy.paging(10, all_posts_count, None, page)
+            posts = public_models.Post.query.filter_by(is_live=True,board_id=board).order_by(public_models.Post.create_time.desc()).slice(start_post,end_post)
+    elif sort == 2: # 精华帖子
+        if board == temp_board:
+            all_posts_count = db.session.query(public_models.Post).filter_by(is_live=True).outerjoin(public_models.Pick).count()
+            start_post, end_post, end_page, web_page = xt_fy.paging(10, all_posts_count, None, page)
+            posts = db.session.query(public_models.Post).filter_by(is_live=True).outerjoin(public_models.Pick).order_by(public_models.Pick.create_time.desc(),public_models.Post.create_time.desc()).slice(start_post,end_post)
+        else:
+            all_posts_count = db.session.query(public_models.Post).filter_by(is_live=True,board_id=board).outerjoin(public_models.Pick).count()
+            start_post, end_post, end_page, web_page = xt_fy.paging(10, all_posts_count, None, page)
+            posts = db.session.query(public_models.Post).filter_by(is_live=True,board_id=board).outerjoin(public_models.Pick).order_by(public_models.Pick.create_time.desc(),public_models.Post.create_time.desc()).slice(start_post,end_post)
+    elif sort == 3:  # 点赞最多
+        if board == temp_board:
+            all_posts_count = db.session.query(public_models.Post).filter_by(is_live=True).outerjoin(public_models.Laud).group_by(public_models.Post.id).count()
+            start_post, end_post, end_page, web_page = xt_fy.paging(10, all_posts_count, None, page)
+            posts = db.session.query(public_models.Post).filter_by(is_live=True).outerjoin(public_models.Laud).group_by(public_models.Post.id).order_by(db.func.count(public_models.Post.lauds).desc(),public_models.Post.create_time.desc()).slice(start_post,end_post)
+        else:
+            all_posts_count = db.session.query(public_models.Post).filter_by(is_live=True,board_id=board).outerjoin(public_models.Laud).group_by(public_models.Post.id).count()
+            start_post, end_post, end_page, web_page = xt_fy.paging(10, all_posts_count, None, page)
+            posts = db.session.query(public_models.Post).filter_by(is_live=True,board_id=board).outerjoin(public_models.Laud).group_by(public_models.Post.id).order_by(db.func.count(public_models.Post.lauds).desc(),public_models.Post.create_time.desc()).slice(start_post, end_post)
+    elif sort == 4:   # 评论最多
+        if board == temp_board:
+            all_posts_count = db.session.query(public_models.Post).filter_by(is_live=True).outerjoin(public_models.Comment).group_by(public_models.Post.id).count()
+            start_post, end_post, end_page, web_page = xt_fy.paging(10, all_posts_count, None, page)
+            posts = db.session.query(public_models.Post).filter_by(is_live=True).outerjoin(public_models.Comment).group_by(public_models.Post.id).order_by(db.func.count(public_models.Post.comments).desc(), public_models.Post.create_time.desc()).slice(start_post,end_post)
+        else:
+            all_posts_count = db.session.query(public_models.Post).filter_by(is_live=True,board_id=board).outerjoin(public_models.Comment).group_by(public_models.Post.id).count()
+            start_post, end_post, end_page, web_page = xt_fy.paging(10, all_posts_count, None, page)
+            posts = db.session.query(public_models.Post).filter_by(is_live=True,board_id=board).outerjoin(public_models.Comment).group_by(public_models.Post.id).order_by(db.func.count(public_models.Post.comments).desc(), public_models.Post.create_time.desc()).slice(start_post,end_post)
+
     content = {
         'boards':boards,
         'posts':posts,
         'end_page':end_page,
         'web_pages':web_page,
         'page':page,
-        'url':'front_post.page_list'
+        'url':'front_post.page_list',
+        'sort':sort,
+        'board':board,
+        'all_posts_count':all_posts_count
     }
     return flask.render_template('front/front_index.html',**content)
 
 
+# 测试
+@bp.route('/test/')
+def test():
+    posts = db.session.query(public_models.Post).outerjoin(public_models.Comment).group_by(public_models.Post.id).order_by(db.func.count(public_models.Post.comments),public_models.Post.create_time.desc()).all()
+    print posts
+    return 'success'
 
 # 发表新帖子
 @bp.route('/add_post/',methods=['GET','POST'])

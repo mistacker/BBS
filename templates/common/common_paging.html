@@ -1,6 +1,7 @@
+{% if all_posts_count!=0 %}
 <nav aria-label="..." style="text-align: center">
     <ul class="pagination">
-    {% if not sort and not board %}
+    {% if not sort and not board and not type%}
         <li ><a href="{{ url_for(url,page=1) }}" aria-label="Previous"><span aria-hidden="true">首页</span></a></li>
         {% if web_pages[0] == page %}
             <li class="disabled"><a aria-label="Previous"><span aria-hidden="true">&laquo;</span></a></li>
@@ -23,7 +24,8 @@
             {% endif %}
         {% endfor %}
         <li ><a href="{{ url_for(url,page=end_page) }}" aria-label="Previous"><span aria-hidden="true">尾页</span></a></li>
-    {% elif sort %}
+    {% elif sort and board!=0 and not board %}
+
         <li ><a href="{{ url_for(url,page=1,sort=sort) }}" aria-label="Previous"><span aria-hidden="true">首页</span></a></li>
         {% if web_pages[0] == page %}
             <li class="disabled"><a aria-label="Previous"><span aria-hidden="true">&laquo;</span></a></li>
@@ -45,30 +47,31 @@
                 {% endif %}
             {% endif %}
         {% endfor %}
-        <li ><a href="{{ url_for(url,page=end_page,sort=sort) }}" aria-label="Previous"><span aria-hidden="true">尾页</span></a></li>
+        <li ><a href="{{ url_for(url,page=end_page,sort=sort,board=board) }}" aria-label="Previous"><span aria-hidden="true">尾页</span></a></li>
     {% else %}
-        <li ><a href="{{ url_for(url,page=1,sort=sort) }}" aria-label="Previous"><span aria-hidden="true">首页</span></a></li>
+        <li ><a href="{{ url_for(url,page=1,sort=sort,board=board) }}" aria-label="Previous"><span aria-hidden="true">首页</span></a></li>
         {% if web_pages[0] == page %}
             <li class="disabled"><a aria-label="Previous"><span aria-hidden="true">&laquo;</span></a></li>
         {% else %}
-            <li><a href="{{ url_for(url,page=page-1,sort=sort) }}" aria-label="Previous"><span aria-hidden="true">&laquo;</span></a></li>
+            <li><a href="{{ url_for(url,page=page-1,sort=sort,board=board) }}" aria-label="Previous"><span aria-hidden="true">&laquo;</span></a></li>
         {% endif %}
         {% for web_page in web_pages.items() %}
             {% if web_page[1] == page %}
-                <li class="active"><a href="{{ url_for(url,page=web_page[1],sort=sort) }}">{{ web_page[1] }}</a></li>
+                <li class="active"><a href="{{ url_for(url,page=web_page[1],sort=sort,board=board) }}">{{ web_page[1] }}</a></li>
             {% else %}
-                <li><a href="{{ url_for(url,page=web_page[1],sort=sort) }}">{{ web_page[1] }}</a></li>
+                <li><a href="{{ url_for(url,page=web_page[1],sort=sort,board=board) }}">{{ web_page[1] }}</a></li>
             {% endif %}
             {% if loop.last %}
                 <li class="disable"><span aria-hidden="true">共{{ end_page }}页</span></li>
                 {% if web_page[1] == page %}
                     <li class="disabled"><a aria-label="Previous"><span aria-hidden="true">&raquo;</span></a></li>
                 {% else %}
-                    <li><a href="{{ url_for(url,page=page+1,sort=sort) }}" aria-label="Previous"><span aria-hidden="true">&raquo;</span></a></li>
+                    <li><a href="{{ url_for(url,page=page+1,sort=sort,board=board) }}" aria-label="Previous"><span aria-hidden="true">&raquo;</span></a></li>
                 {% endif %}
             {% endif %}
         {% endfor %}
-        <li ><a href="{{ url_for(url,page=end_page,sort=sort) }}" aria-label="Previous"><span aria-hidden="true">尾页</span></a></li>
+        <li ><a href="{{ url_for(url,page=end_page,sort=sort,board=board) }}" aria-label="Previous"><span aria-hidden="true">尾页</span></a></li>
     {% endif %}
     </ul>
 </nav>
+{% endif %}

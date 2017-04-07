@@ -1,7 +1,7 @@
 #coding:utf-8
 import flask
 
-def paging(every_page,tablename,board_id,page):
+def paging(every_page,posts,board_id,page):
     # 每页的帖子数
     every_page = every_page
     # 开始的帖子
@@ -15,11 +15,13 @@ def paging(every_page,tablename,board_id,page):
         return flask.abort(404)
     # 计算尾页
     all_posts = 0
-    if not board_id or board_id=='0':
-        all_posts = tablename.query.filter_by(is_live=True).count()
-    else:
-        all_posts = tablename.query.filter_by(is_live=True,board_id=board_id).count()
-
+    try:
+        all_posts = int(posts)
+    except:
+        if not board_id or board_id=='0':
+            all_posts = posts.query.filter_by(is_live=True).count()
+        else:
+            all_posts = posts.query.filter_by(is_live=True,board_id=board_id).count()
     tmp = 0
     tmp = all_posts / every_page
     if all_posts%every_page!=0:

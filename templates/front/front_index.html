@@ -9,26 +9,26 @@
 {% block container %}
     <div class="lg-container">
         <ul class="top-group">
-            <li class="current">
-                <a href="#">
+            <li {% if sort==1 %}class="current"{% endif %}>
+                <a href="{{ url_for('front_post.page_list',page=1,sort=1,board=board) }}">
                     <div class="icon-group"><i class="iconfont icon-zuixin"></i></div>
                     <p class="block-title">最新帖子</p>
                 </a>
             </li>
-            <li>
-                <a href="#">
+            <li {% if sort==2 %}class="current"{% endif %}>
+                <a href="{{ url_for('front_post.page_list',page=1,sort=2,board=board) }}">
                     <div class="icon-group"><i class="iconfont icon-jinghua"></i></div>
                     <p class="block-title">精华帖子</p>
                 </a>
             </li>
-            <li>
-                <a href="#">
+            <li {% if sort==3 %}class="current"{% endif %}>
+                <a href="{{ url_for('front_post.page_list',page=1,sort=3,board=board) }}">
                     <div class="icon-group"><i class="iconfont icon-zhichizuiduoxianti"></i></div>
                     <p class="block-title">点赞最多</p>
                 </a>
             </li>
-            <li>
-                <a href="#">
+            <li {% if sort==4 %}class="current"{% endif %}>
+                <a href="{{ url_for('front_post.page_list',page=1,sort=4,board=board) }}">
                     <div class="icon-group"><i class="iconfont icon-appzuixinhuifu"></i></div>
                     <p class="block-title">评论最多</p>
                 </a>
@@ -49,6 +49,9 @@
                                 <a class="title_name" href="{{ url_for('front_post.post_detail',id=post.id) }}">
                                     {{ post.title }}
                                 </a>
+                                {% if post.pick %}
+                                    <span class="label label-danger">精</span>
+                                {% endif %}
                             </div>
                             <div class="auth-msg">
                                 <a href="#" class="user_name">{{ post.front_user.username }}</a>
@@ -69,7 +72,7 @@
         <div class="list-group">
             <span class="list-group-item header">板块</span>
             {% for board in boards %}
-                <a href="#" class="list-group-item">
+                <a href="{{ url_for('front_post.page_list',page=page,sort=sort,board=board.id) }}" class="list-group-item">
                     {{ board.name }}
                     <span class="badge">{{ board.posts|count }}</span>
                 </a>

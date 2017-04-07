@@ -17,6 +17,10 @@
     text-decoration: none;
     color: #ff6f3d;
 }
+span.label.label-danger {
+    vertical-align: text-top;
+    padding: 0.3em .5em .2em;
+}
 .select{
     text-decoration: none;
     color: #ff6f3d;
