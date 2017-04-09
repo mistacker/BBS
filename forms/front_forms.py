@@ -51,3 +51,12 @@ class Front_second_comment_form(Front_comment_form):
 
 class Front_laud_form(Form_error):
     post_id = IntegerField(validators=[InputRequired(message=u'帖子id不能为空')])
+
+class Front_setting_form(Form_error):
+    username = StringField(validators=[InputRequired(message=u'用户名不能为空')])
+    relname = StringField()
+    # qq = StringField(validators=[Regexp('^[1-9]\\d(4,10)$',message=u'qq号格式不正确')])
+    gender = IntegerField(validators=[InputRequired(message=u'性别不能为空')])
+    qq = StringField()
+    avatar = StringField()
+    signature = StringField()

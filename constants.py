@@ -10,5 +10,11 @@ appkey = ''
 secret = ''
 
 # 七牛的两个key
-AccessKey = ''
-SecretKey = ''
+AccessKey = 'HjYzkVVwmfucfaLhJx7_95CR5YPDkdQOEMjmCn4u'
+SecretKey = 'Abb570Qx3PnV_uBb1iYvpyNtWIyn6uJGvqJOnzx0'
+
+# 登陆参数
+LOGIN_TEMP = {
+    'last_login_time':'',
+    'font_login_tel':''
+}

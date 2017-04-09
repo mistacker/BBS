@@ -12,6 +12,7 @@ from my_decorator import login_required,prove_power_super_admin
 from utils import xt_json,xt_fy
 from utils.xt_mail import send_mail
 from utils import xt_cache
+from models.models_helper import Model_Tool
 
 
 bp = Blueprint('cms',__name__,subdomain='cms')
@@ -143,53 +144,15 @@ def cms_posts():
 def cms_posts_page(page):
     # 1. 按时间
     # 2. 按精品
-    # 3. 按阅读量
-    tablename = Post
+    # 3. 按评论
+    # tablename = Post
     board_id = flask.request.args.get('board_id')
     sort_id = flask.request.args.get('sort')
-    start_post, end_post, end_page, web_page = xt_fy.paging(8, tablename,board_id, page)
-    posts = ''
-    if not sort_id and not board_id:
-        posts = Post.query.filter_by(is_live=True).slice(start_post,end_post)
-        boards = BoardModel.query.filter_by(is_live=True).all()
-        content = {
-            'end_page': end_page,
-            'web_pages': web_page,
-            'page': page,
-            'url': 'cms.cms_posts_page',
-            'posts':posts,
-            'boards':boards
-        }
-        return flask.render_template('cms/cms_posts.html', **content)
-    elif sort_id == '1':
-        if board_id == '0' or not board_id:
-            posts = Post.query.order_by(Post.create_time).filter_by(is_live=True).slice(start_post,end_post)
-        else:
-            posts = Post.query.order_by(Post.create_time).filter_by(is_live=True,board_id=board_id).slice(start_post,end_post)
-    elif sort_id == '2':
-        if board_id == '0' or not board_id:
-            posts = db.session.query(Post).outerjoin(Pick).filter(Post.is_live==True).order_by(Pick.create_time.desc(),Post.create_time.desc()).slice(start_post,end_post)
-        else:
-            posts = db.session.query(Post).outerjoin(Pick).filter(Post.is_live==True,Post.board_id==board_id).order_by(Pick.create_time.desc(),Post.create_time.desc()).slice(start_post,end_post)
-    elif sort_id == '3':
-        if board_id == '0' or not board_id:
-            posts = Post.query.order_by(Post.create_time.desc()).filter_by(is_live=True).slice(start_post,end_post)
-        else:
-            posts = Post.query.order_by(Post.create_time.desc()).filter_by(is_live=True, board_id=board_id).slice(start_post, end_post)
-    else:
-        if board_id != '0' and board_id:
-            posts = Post.query.order_by(Post.create_time).filter_by(is_live=True, board_id=board_id).slice(start_post,end_post)
-    boards = BoardModel.query.filter_by(is_live=True).all()
-    content = {
-        'end_page': end_page,
-        'web_pages': web_page,
-        'page': page,
-        'url': 'cms.cms_posts_page',
-        'posts': posts,
-        'boards': boards,
-        'sort':sort_id,
-        'board_id':board_id
-    }
+    if not board_id:
+        board_id = 0
+    if not sort_id:
+        sort_id = 1
+    content = Model_Tool.cms_tool(page,sort_id,board_id)
     return flask.render_template('cms/cms_posts.html', **content)
 
 
@@ -493,7 +456,6 @@ def edit_front_user(id):
         return flask.render_template('cms/edit_front_user.html',front_user=front_user)
 
 # 板块管理
-
 @bp.route('/board/')
 @login_required
 def cms_board():

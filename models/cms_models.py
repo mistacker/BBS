@@ -29,7 +29,7 @@ class CMSRole(Base):
     name = db.Column(db.String(50),nullable=False)
     desc = db.Column(db.String(100))
     power = db.Column(db.Integer,default=User_power.common)
-    create_time = db.Column(db.DateTime,default=datetime.now())
+    create_time = db.Column(db.DateTime,default=datetime.now)
     cms_users = db.relationship('CMSUser',secondary=user_role_table)
 
 # CMS用户表
@@ -39,7 +39,7 @@ class CMSUser(Base):
     username = db.Column(db.String(100),nullable=False)
     _password = db.Column(db.String(100),nullable=False)
     email = db.Column(db.String(100),nullable=False,unique=True)
-    join_time = db.Column(db.DateTime,default=datetime.now())
+    join_time = db.Column(db.DateTime,default=datetime.now)
     is_live = db.Column(db.Boolean,default=True)
     cms_roles = db.relationship('CMSRole',secondary=user_role_table)
 

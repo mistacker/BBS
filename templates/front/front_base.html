@@ -28,10 +28,10 @@
             <ul class="nav navbar-nav navbar-right">
                 {% if front_user %}
                     <li class="dropdown">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">{{ front_user.username }}<span class="caret"></span></a>
+                        <a href="{{ url_for('front_post.profile',id=front_user.id) }}" class="dropdown-toggle" data-toggle="dropdown">{{ front_user.username }}<span class="caret"></span></a>
                         <ul class="dropdown-menu">
-                            <li><a href="#" class="dropdown-toggle"><img src="{{ urlFor('images/logo.jpg') }}" >个人中心</a></li>
-                            <li><a href="#">设置</a></li>
+                            <li><a href="{{ url_for('front_post.profile',id=front_user.id) }}" class="dropdown-toggle"><img src="{{ front_user.avatar }}" >个人中心</a></li>
+                            <li><a href="{{ url_for('front_post.setting') }}">设置</a></li>
                             <li><a href="{{ url_for('front_accent.logout') }}">退出登录</a></li>
                         </ul>
                     </li>

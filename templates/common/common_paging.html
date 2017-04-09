@@ -1,7 +1,7 @@
 {% if all_posts_count!=0 %}
 <nav aria-label="..." style="text-align: center">
     <ul class="pagination">
-    {% if not sort and not board and not type%}
+    {% if not sort and not board%}
         <li ><a href="{{ url_for(url,page=1) }}" aria-label="Previous"><span aria-hidden="true">首页</span></a></li>
         {% if web_pages[0] == page %}
             <li class="disabled"><a aria-label="Previous"><span aria-hidden="true">&laquo;</span></a></li>

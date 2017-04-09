@@ -117,17 +117,17 @@ $(function(){
     <div class="add_admin left">
         <b>排序：</b>
         <select class="sel_left sort_select">
-            <option value="1" {% if sort=="1" %}selected{% endif %}>按时间排序</option>
-            <option value="2" {% if sort=="2" %}selected{% endif %}>按精品排序</option>
-            <option value="3" {% if sort=="3" %}selected{% endif %}>按阅读量排序</option>
+            <option value="1" {% if sort==1 %}selected{% endif %}>按时间排序</option>
+            <option value="2" {% if sort==2 %}selected{% endif %}>按精品排序</option>
+            <option value="3" {% if sort==3 %}selected{% endif %}>按评论量排序</option>
         </select>
     </div>
     <div class="add_admin right">
         <b>过滤板块：</b>
         <select class="sel_right sort_select">
-            <option value="0" {% if board_id == '0' %}selected{% endif %}>所有</option>
-            {% for board in boards %}
-                <option value="{{ board.id }}" {% if board_id == (board.id|string) %}selected{% endif %}>{{ board.name }}</option>
+            <option value="0" {% if board == '0' %}selected{% endif %}>所有</option>
+            {% for web_board in boards %}
+                <option value="{{ web_board.id }}" {% if board == (web_board.id|int) %}selected{% endif %}>{{ web_board.name }}</option>
             {% endfor %}
         </select>
     </div>
@@ -158,5 +158,4 @@ $(function(){
     {% endfor %}
 </table>
     {% include('common/common_paging.html') %}
-
 {% endblock %}

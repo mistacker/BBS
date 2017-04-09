@@ -21,14 +21,14 @@
                     <p class="block-title">精华帖子</p>
                 </a>
             </li>
-            <li {% if sort==3 %}class="current"{% endif %}>
-                <a href="{{ url_for('front_post.page_list',page=1,sort=3,board=board) }}">
+            <li {% if sort==4 %}class="current"{% endif %}>
+                <a href="{{ url_for('front_post.page_list',page=1,sort=4,board=board) }}">
                     <div class="icon-group"><i class="iconfont icon-zhichizuiduoxianti"></i></div>
                     <p class="block-title">点赞最多</p>
                 </a>
             </li>
-            <li {% if sort==4 %}class="current"{% endif %}>
-                <a href="{{ url_for('front_post.page_list',page=1,sort=4,board=board) }}">
+            <li {% if sort==3 %}class="current"{% endif %}>
+                <a href="{{ url_for('front_post.page_list',page=1,sort=3,board=board) }}">
                     <div class="icon-group"><i class="iconfont icon-appzuixinhuifu"></i></div>
                     <p class="block-title">评论最多</p>
                 </a>
@@ -40,8 +40,8 @@
                     {% for post in posts %}
                     <li style="margin: 25px 0">
                         <div class="post-list-img col-md-1 col-lg-1 col-ms-1" style="padding-left: 0">
-                            <a href="#">
-                                <img src="{{ urlFor('images/logo.jpg') }}" alt="">
+                            <a href="{{ url_for('front_post.profile',id=post.front_user.id) }}">
+                                <img src="{{ post.front_user.avatar }}" alt="">
                             </a>
                         </div>
                         <div class="post-list-con">
@@ -55,9 +55,9 @@
                             </div>
                             <div class="auth-msg">
                                 <a href="#" class="user_name">{{ post.front_user.username }}</a>
-                                <span class="time">{{ post.create_time }}</span>
+                                <span class="time">{{ post.create_time|format_time }}</span>
                                 <span class="comment-count">评论：{{ post.comments|count }}</span>
-                                <span class="read-count">阅读：10</span>
+                                <span class="read-count">阅读：{{ post.read_count }}</span>
                             </div>
                         </div>
                     </li>

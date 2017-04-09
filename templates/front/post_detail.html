@@ -39,7 +39,7 @@ $(function(){
                 <div class="post-top">
                     <h2>{{ post.title }}</h2>
                     <p class="post-info">
-                        <span>发表时间：{{ post.create_time }}</span>
+                        <span>发表时间：{{ post.create_time|format_time }}</span>
                         <span>作者：{{ post.front_user.username }}</span>
                         <span>所属板块：{{ post.board.name|default('无板块') }}</span>
                         <span class="comment-count">评论数：{{ post.comments | count }}</span>
@@ -57,7 +57,9 @@ $(function(){
                     {% endif %}
                     {% if post.lauds %}
                     {% for laud in post.lauds %}
-                        <img src="{{ urlFor('images/logo.jpg') }}">
+                        <a href="{{ url_for('front_post.profile',id=laud.front_user.id) }}">
+                        <img src="{{ laud.front_user.avatar }}">
+                        </a>
                     {% endfor %}
                     {% endif %}
                 </div>
@@ -78,17 +80,17 @@ $(function(){
                     {% for comment in post.comments %}
                         <li>
                             <div class="comment-img">
-                                <a href="#"><img class="user-head" src="{{ urlFor('images/logo.jpg') }}" alt=""></a>
+                                <a href="{{ url_for('front_post.profile',id=comment.front_user.id) }}"><img class="user-head" src="{{ comment.front_user.avatar }}" alt=""></a>
                             </div>
                             <div class="comment-content">
                                 <p class="author-info">
                                     <span>{{ comment.front_user.username }}</span>
-                                    <span>{{ comment.create_time }}</span>
+                                    <span>{{ comment.create_time|format_time }}</span>
                                 </p>
                                 {% if comment.origin_comment %}
                                     <div class="origin-comment-group">
                                         <blockquote>
-                                            {{ comment.origin_comment.front_user.username}} 发表于 {{ comment.origin_comment.create_time }}
+                                            {{ comment.origin_comment.front_user.username}} 发表于 {{ comment.origin_comment.create_time|format_time }}
                                             <p>{{ comment.origin_comment.comtent|safe|truncate }}</p>
                                         </blockquote>
                                     </div>
@@ -107,12 +109,12 @@ $(function(){
     <div class="right-container">
         <div class="author-group">
             <div class="avatar-group">
-                <a href="#"><img src="{{ url_for('static',filename='images/logo.jpg') }}" alt="" class="avatar-img"></a>
+                <a href="{{ url_for('front_post.profile',id=post.front_user.id) }}"><img src="{{ post.front_user.avatar }}" alt="" class="avatar-img"></a>
             </div>
             <p class="username">{{ post.front_user.username }}</p>
             <p class="txt">{{ post.front_user.bbs_points }}积分</p>
             <div class="btn-box">
-                <a href="#" class="btn btn-warning">Ta的主页</a>
+                <a href="{{ url_for('front_post.profile',id=post.front_user.id) }}" class="btn btn-warning">Ta的主页</a>
             </div>
         </div>
     </div>

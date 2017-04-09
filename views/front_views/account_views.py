@@ -2,9 +2,10 @@
 
 from flask import Blueprint
 from flask import views
+from datetime import  datetime
 import flask
 from utils.xt_img_captcha import Captcha
-from constants import CAPTCHA,FRONT_USER_TEL
+from constants import CAPTCHA,FRONT_USER_TEL,LOGIN_TEMP
 from utils import xt_cache,xt_json
 from utils.xt_al_big_fish import get_tel_captcha
 from forms import front_forms
@@ -115,6 +116,9 @@ class LoginUser(views.MethodView):
                 else:
                     flask.session.permanent = False
                 flask.session[FRONT_USER_TEL] = telephone
+                # 绑定数据
+                LOGIN_TEMP['last_login_time'] = datetime.now()
+                LOGIN_TEMP['font_login_tel'] = telephone
                 return flask.redirect(flask.url_for('front_post.index'))
             else:
                 temp = {

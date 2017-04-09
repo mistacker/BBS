@@ -138,9 +138,9 @@ $(function(){
                     {% if comment.comments %}
                         {% for child_comment in comment.comments %}
                         <tr>
-                            <td>{{ child.comment.comtent|safe }}</td>
-                            <td>{{ child.comment.create_time }}</td>
-                            <td><span class="mybtn btn btn-xs btn-danger" info="{{ child_comment.id }}">删除</span>&nbsp;{% if child_comment.is_live %}<span class="opt_btn btn btn-xs btn-info" info="{{ comment.id }}">隐藏</span>{% else %}<span class="opt_btn btn btn-xs btn-primary" info="{{ comment.id }}">显示</span>{% endif %}</td>
+                            <td>{{ child_comment.comtent|safe }}</td>
+                            <td>{{ child_comment.create_time }}</td>
+                            <td><span class="mybtn btn btn-xs btn-danger" info="{{ child_comment.id }}">删除</span>&nbsp;{% if child_comment.is_live %}<span class="opt_btn btn btn-xs btn-info" info="{{ child_comment.id }}">隐藏</span>{% else %}<span class="opt_btn btn btn-xs btn-primary" info="{{ child_comment.id }}">显示</span>{% endif %}</td>
                         </tr>
                         {% endfor %}
                     {% endif %}
@@ -178,9 +178,9 @@ $(function(){
                 {% if comment.comments %}
                     {% for child_comment in comment.comments %}
                     <tr>
-                        <td>{{ child.comment.comtent|safe }}</td>
-                        <td>{{ child.comment.create_time }}</td>
-                        <td><span class="mybtn btn btn-xs btn-danger" info="{{ child_comment.id }}">删除</span>&nbsp;{% if child_comment.is_live %}<span class="opt_btn btn btn-xs btn-info" info="{{ comment.id }}">隐藏</span>{% else %}<span class="opt_btn btn btn-xs btn-primary" info="{{ comment.id }}">显示</span>{% endif %}</td>
+                        <td>{{ child_comment.comtent|safe }}</td>
+                        <td>{{ child_comment.create_time }}</td>
+                        <td><span class="mybtn btn btn-xs btn-danger" info="{{ child_comment.id }}">删除</span>&nbsp;{% if child_comment.is_live %}<span class="opt_btn btn btn-xs btn-info" info="{{ child_comment.id }}">隐藏</span>{% else %}<span class="opt_btn btn btn-xs btn-primary" info="{{ child_comment.id }}">显示</span>{% endif %}</td>
                     </tr>
                     {% endfor %}
                 {% endif %}

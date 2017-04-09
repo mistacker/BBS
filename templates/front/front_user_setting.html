@@ -1,0 +1,163 @@
+{% extends 'front/front_base.html' %}
+{% block title %}
+用户设置
+{% endblock %}
+{% block head %}
+<script src="{{ urlFor('common/utils/xt_qiniu.js') }}"></script>
+<style>
+*{
+    padding: 0;
+    margin: 0;
+}
+body{
+    background-color: #F3F3F3;
+}
+.content{
+    background-color: #fff;
+    height: auto;
+    width: 728px;
+    margin: 0 auto;
+    border: 1px solid #e6e6e6;
+
+}
+.setting-container{
+    margin: 26px auto;
+    width: 655px;
+}
+hr{
+    margin-top: 5px;
+}
+/*.input-group-addon{
+    font-weight: bold;
+    background-color: #fff;
+    border: 0px;
+    border-radius: 0px;
+    width: 0;
+}*/
+.form-control{
+    width: 300px;
+    padding-left: 5px;
+}
+.img-border{
+    border: 1px solid pink;
+    display: inline-flex;
+    cursor: pointer;
+}
+.avatar-img{
+    width: 80px;
+    height: 80px;
+    vertical-align: middle;
+}
+</style>
+<script>
+$(function(){
+    // 点击保存按钮
+    $('.save-btn').click(function(event){
+        event.preventDefault();
+        var username = $('input[name=username]').val();
+        var relname = $('input[name=relname]').val();
+        var gender = $('.gender').val();
+        var qq = $('input[name=qq]').val();
+        var avatar = $('.avatar').attr('src');
+        var signature = $('#signature').val();
+        console.log(signature);
+
+        xtajax.post({
+            'url':'/save_setting/',
+            'data':{
+                'username':username,
+                'relname':relname,
+                'gender':gender,
+                'qq':qq,
+                'avatar':avatar,
+                'signature':signature
+            },
+            'success':function(data){
+                xtalert.alertSuccessToast(data['message']);
+                setTimeout(function(){
+                    window.location.reload();
+                },500)
+            },
+            'fail':function(error){
+                xtalert.alertNetworkError()
+            }
+        })
+    })
+});
+$(function(){
+    var save_btn = $('.save-btn');
+    var avatar = $('#avatar');
+    // 点击图片
+    var args = {
+        'btn':'avatar',
+        'get_token':'/get_token/',
+        'domain':'http://ohslbq04h.bkt.clouddn.com',
+        'uploadProgress':function(up, file){
+            save_btn.attr('disabled',true);
+            save_btn.text('头像正在上传，请稍后...')
+        },
+        'fileUploaded':function(up,file,info,sourcelink){
+            var newSrc = sourcelink+'?imageView2/1/w/100/h/100/format/jpg/q/75|imageslim';
+            avatar.attr('src',newSrc);
+        },
+        'uploadComplete':function(){
+            save_btn.attr('disabled',false);
+            save_btn.text('保存');
+        }
+    };
+    qn.setup(args)
+})
+</script>
+{% endblock %}
+{% block body %}
+<div class='content'>
+    <div class="setting-container">
+        <div class="setting-top">
+            <h2 class="top-h2">个人设置页面</h2>
+            <hr>
+        </div>
+        <div>
+            <form method="post">
+                <div class="form-group">
+                        <label >用户名：</label>
+                        <input type="text" name='username' class='form-control' value="{{ front_user.username }}">
+                </div>
+                <div class="form-group">
+                        <label >真实姓名：</label>
+                        <input type="text" name='relname' class='form-control' value="{{ front_user.relname|undefine }}">
+                </div>
+                <div class="form-group">
+                        <label >性别：</label>
+                        <select class="gender form-control">
+                            <option value="1"{% if front_user.gender == 1 %}selected{% endif %}>男</option>
+                            <option value="2"{% if front_user.gender == 2 %}selected{% endif %}>女</option>
+                            <option value="3"{% if front_user.gender == 3 %}selected{% endif %}>保密</option>
+                        </select>
+                </div>
+                <div class="form-group">
+                        <label >QQ：</label>
+                        <input type="text" name='qq' class='form-control' value="{{ front_user.qq|undefine }}">
+                </div>
+                <div class="form-group">
+                    <label >头像：</label>
+                    <div class="img-border">
+                        <img class="avatar img-circle avatar-img" id="avatar" src="{{ front_user.avatar }}" alt="点击更换头像"/>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>个性签名：</label>
+                    <div>
+                        <textarea name="signature" id="signature" cols="40" rows="5">{{ front_user.signature|undefine }}</textarea>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <button class="save-btn btn btn-primary">
+                        保存
+                    </button>&nbsp;&nbsp;&nbsp;
+                    <a class="btn btn-info" href="{{ url_for('front_post.index') }}">返回首页</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
