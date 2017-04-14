@@ -10,7 +10,7 @@ from qiniu import Auth
 from forms.front_forms import Front_add_post_form,Front_comment_form,Front_second_comment_form,Front_laud_form,Front_setting_form
 from exts import db
 from utils import xt_json,xt_fy
-from datetime import datetime
+import datetime
 from models.models_helper import Model_Tool
 
 bp = Blueprint('front_post',__name__)
@@ -52,9 +52,18 @@ def add_post():
             content = form.content.data
             board = public_models.BoardModel.query.get(board_id)
             front_user = flask.g.front_user
-            post = public_models.Post(title=title,content=content,create_time=datetime.now())
+            post = public_models.Post(title=title,content=content,create_time=datetime.datetime.now())
             board.posts.append(post)
             front_user.posts.append(post)
+            # 获取当前发帖的日期
+            post_date = datetime.date.today()
+            post_date = str(post_date)+'post'
+            if not LOGIN_TEMP.has_key(post_date):
+                LOGIN_TEMP[post_date] = 1
+                front_user.bbs_points += 5      # 帖子发表一次用户积分加5
+            elif LOGIN_TEMP[post_date] <=5:
+                front_user.bbs_points += 5      # 帖子发表一次用户积分加5
+                LOGIN_TEMP[post_date] +=1
             db.session.commit()
             return xt_json.json_result_ok('恭喜 帖子发表成功!')
         else:
@@ -104,9 +113,17 @@ def add_comment():
         content = form.content.data
         post = public_models.Post.query.get(post_id)
         front_user = flask.g.front_user
-        comment = public_models.Comment(comtent=content,create_time=datetime.now())
+        comment = public_models.Comment(comtent=content,create_time=datetime.datetime.now())
         post.comments.append(comment)
         front_user.comments.append(comment)
+        comment_date = datetime.date.today()
+        comment_date = str(comment_date)+'comment'
+        if not LOGIN_TEMP.has_key(comment_date):
+            LOGIN_TEMP[comment_date] = 1
+            front_user.bbs_points += 3  # 发表二级评论积分加3
+        elif LOGIN_TEMP[comment_date] <= 8:
+            front_user.bbs_points += 3  # 发表二级评论积分加3
+            LOGIN_TEMP[comment_date] += 1
         db.session.commit()
         return xt_json.json_result_ok('评论成功!')
     else:
@@ -134,10 +151,18 @@ def add_second_comment_func():
         comment_id = form.comment_id.data
         post = public_models.Post.query.filter_by(is_live=True, id=post_id).first()
         comment = public_models.Comment.query.filter_by(is_live=True, id=comment_id).first()
-        child_comment = public_models.Comment(comtent=content,create_time=datetime.now())
+        child_comment = public_models.Comment(comtent=content,create_time=datetime.datetime.now())
         child_comment.origin_comment = comment
         child_comment.post = post
         child_comment.front_user = flask.g.front_user
+        comment_date = datetime.date.today()
+        comment_date = str(comment_date)+'comment'
+        if not LOGIN_TEMP.has_key(comment_date):
+            LOGIN_TEMP[comment_date] = 1
+            flask.g.front_user.bbs_points += 3              # 发表二级评论积分加3
+        elif LOGIN_TEMP[comment_date] <= 8:
+            flask.g.front_user.bbs_points += 3              # 发表二级评论积分加3
+            LOGIN_TEMP[comment_date] += 1
         db.session.add(child_comment)
         db.session.commit()
         return xt_json.json_result_ok('评论成功!')
@@ -160,7 +185,7 @@ def laud():
             db.session.commit()
             return xt_json.json_result_ok('success')
         else:
-            laud = public_models.Laud(create_time=datetime.now())
+            laud = public_models.Laud(create_time=datetime.datetime.now())
             laud.post = post
             laud.front_user = front_user
             db.session.add(laud)

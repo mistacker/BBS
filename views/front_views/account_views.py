@@ -2,7 +2,7 @@
 
 from flask import Blueprint
 from flask import views
-from datetime import  datetime
+import  datetime
 import flask
 from utils.xt_img_captcha import Captcha
 from constants import CAPTCHA,FRONT_USER_TEL,LOGIN_TEMP
@@ -117,8 +117,15 @@ class LoginUser(views.MethodView):
                     flask.session.permanent = False
                 flask.session[FRONT_USER_TEL] = telephone
                 # 绑定数据
-                LOGIN_TEMP['last_login_time'] = datetime.now()
+                LOGIN_TEMP['last_login_time'] = datetime.datetime.now()
                 LOGIN_TEMP['font_login_tel'] = telephone
+                # 每天第一次登陆积分加2
+                # 获取当前登录的日期->判断参数里是否有，并且是否相同，不同则更改日期，并且积分加2
+                day = datetime.date.today()
+                if not LOGIN_TEMP['today'] or LOGIN_TEMP['today']!=day:
+                    LOGIN_TEMP['today'] = day
+                    front_user.bbs_points += 2
+                    db.session.commit()
                 return flask.redirect(flask.url_for('front_post.index'))
             else:
                 temp = {

@@ -57,7 +57,7 @@ $(function () {
     }else if(url.indexOf('cmsrole_manage') >= 0){
         var cmsroleManageLi = $('.cmsrole-manage');
         cmsroleManageLi.addClass('unfold').siblings().removeClass('unfold');
-    }else if(url.indexOf('comments') >= 0) {
+    }else if(url.indexOf('comment_manage') >= 0) {
         var commentsManageLi = $('.comments-manage');
         commentsManageLi.addClass('unfold').siblings().removeClass('unfold');
     }

@@ -2,6 +2,8 @@
 from models import public_models
 from utils import xt_fy
 from exts import db
+from datetime import datetime
+import json
 
 class Model_Tool(object):
 
@@ -10,6 +12,43 @@ class Model_Tool(object):
         POST_PICK = 2
         POST_COMMENT = 3
         POST_LAUD = 4
+
+    @classmethod
+    def to_dict(cls,port_model):
+        '''
+        :param port_model:
+        :return:
+        :把模型中的数据转换成字典类型
+        '''
+        dict = {}
+        for column in port_model.__table__.columns:
+            # 获取对象中的属性名字
+            column_val = getattr(port_model,column.name)
+            if isinstance(column_val,datetime):
+                column_val = column_val.strftime('%Y-%m-%d %H:%M:%S')
+            dict[column.name] = column_val
+        return dict
+
+    @classmethod
+    def to_json(cls,port_model):
+        '''
+        :param port_model:
+        :return:
+        :把字典转换成json方法
+        '''
+        data_dict = cls.to_dict(port_model)
+        data_json = json.dumps(data_dict)    # 把dict转换成json   loads是把json转换成dict
+        return data_json
+
+    # def new_to_dict(self,port_model):
+    #     columns = port_model.__table__.columns
+    #     dict = {}
+    #     for column in columns:
+    #         value = getattr(port_model,column.name)
+    #         if isinstance(value,datetime):
+    #             value = value.strftime('%Y-%m-%d %H:%M:%S')
+    #         dict[column.name] = value
+    #     return dict
 
     @classmethod
     def front_tool(cls,page,sort,board):

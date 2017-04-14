@@ -126,7 +126,7 @@ def send_email_captcha():
             return xt_json.json_params_error('对不起该邮箱已存在!')
         captcha = xt_cache.set_captcha(6,newemail,3*60)
         if captcha:
-            send_mail('潭州论坛-邮箱验证码',newemail,body='您正在修改潭州论坛CMS用户的邮箱，您的验证码是：'+captcha)
+            send_mail('个人论坛-邮箱验证码',newemail,body='您正在修改您的个人论坛CMS用户的邮箱，您的验证码是：'+captcha)
             return xt_json.json_result_ok('发送验证码成功!')
         else:
             return xt_json.json_server_error('服务器错误!')

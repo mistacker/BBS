@@ -7,14 +7,14 @@ body{
     width: 854px;
     margin: 0 auto;
     overflow: hidden;
-    margin-top: 150px;
+    margin-top: 7%;
     padding-bottom: 20px;
 }
-.logo-box img{
-    width: 60px;
-    height:60px;
+.logo-box img {
+    width: 100px;
+    height: 100px;
     display: block;
-    margin: 0 auto;
+    margin: 10px auto 5px auto;
 }
 .sign-group{
     width: 300px;

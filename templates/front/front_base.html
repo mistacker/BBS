@@ -19,7 +19,7 @@
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
             </button>
-            <a class="navbar-brand" href="/">潭州python学院</a>
+            <a class="navbar-brand" href="/">xlong个人论坛</a>
         </div>
         <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
             <ul class="nav navbar-nav">
@@ -30,7 +30,7 @@
                     <li class="dropdown">
                         <a href="{{ url_for('front_post.profile',id=front_user.id) }}" class="dropdown-toggle" data-toggle="dropdown">{{ front_user.username }}<span class="caret"></span></a>
                         <ul class="dropdown-menu">
-                            <li><a href="{{ url_for('front_post.profile',id=front_user.id) }}" class="dropdown-toggle"><img src="{{ front_user.avatar }}" >个人中心</a></li>
+                            <li><a href="{{ url_for('front_post.profile',id=front_user.id) }}" class="dropdown-toggle"><img src="{{ front_user.avatar }}">个人中心</a></li>
                             <li><a href="{{ url_for('front_post.setting') }}">设置</a></li>
                             <li><a href="{{ url_for('front_accent.logout') }}">退出登录</a></li>
                         </ul>

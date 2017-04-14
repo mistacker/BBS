@@ -16,7 +16,7 @@ def get_tel_captcha(tel):
     req.sms_type = "normal"
     req.sms_free_sign_name = "票务查询"
     req.sms_param = "{'code':'%s'}"%captcha
-    print captcha,tel
+    # print captcha,tel
     req.rec_num = tel.decode('utf-8').encode('ascii')
     req.sms_template_code = "SMS_57320071"
     try :

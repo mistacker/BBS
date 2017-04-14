@@ -35,7 +35,7 @@
         </li>
         <li>真实姓名：
             {% if front_user and current_user.id == front_user.id %}
-                {{ current_user.realname or '未填写' }}
+                {{ current_user.relname or '未填写' }}
             {% else %}
                 [隐藏]
             {% endif %}

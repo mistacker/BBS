@@ -1,7 +1,7 @@
 {% extends 'front/front_sign_base.html' %}
 
 {% block title %}
-    登录Python潭州论坛
+    登录xlong个人论坛
 {% endblock %}
 
 {% block head %}
@@ -11,6 +11,13 @@
         }
         img.yzm.btn {
             padding: 0;
+        }
+        .group-btn{
+            margin-top: 50px;
+        }
+        .group-btn button,a {
+            width: 49%;
+            display: inline;
         }
     </style>
     <script>
@@ -58,8 +65,9 @@
             <a href="#">忘记密码？</a>
         </div>
     </div>
-    <div class="form-group">
-        <button class="btn btn-warning btn-block">立即登录</button>
+    <div class="form-group group-btn">
+        <button class="btn btn-warning">立即登录</button>
+        <a class="btn btn-info" href="{{ url_for('front_accent.regist') }}">去注册</a>
     </div>
 </form>
 {% endblock %}
