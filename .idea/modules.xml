@@ -2,7 +2,10 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/../../PycharmProjects/my_celery/.idea/celery.iml" filepath="$PROJECT_DIR$/../../PycharmProjects/my_celery/.idea/celery.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/demo19_1.iml" filepath="$PROJECT_DIR$/.idea/demo19_1.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../../PycharmProjects/my_celery/.idea/my_celery.iml" filepath="$PROJECT_DIR$/../../PycharmProjects/my_celery/.idea/my_celery.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../../PycharmProjects/xss_test/.idea/xss_test.iml" filepath="$PROJECT_DIR$/../../PycharmProjects/xss_test/.idea/xss_test.iml" />
     </modules>
   </component>
 </project>
